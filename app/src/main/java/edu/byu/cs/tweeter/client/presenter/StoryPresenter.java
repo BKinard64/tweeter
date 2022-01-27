@@ -3,32 +3,33 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowersPresenter {
+public class StoryPresenter {
 
     private static final int PAGE_SIZE = 10;
 
     public interface View {
         void displayMessage(String message);
         void setLoadingStatus(boolean value);
-        void addFollowers(List<User> followers);
+        void addStories(List<Status> statuses);
         void goToUserPage(User user);
     }
 
     private View view;
-    private FollowService followService;
+    private StatusService statusService;
     private UserService userService;
 
-    private User lastFollower;
+    private Status lastStatus;
     private boolean hasMorePages;
     private boolean isLoading = false;
 
-    public FollowersPresenter(View view) {
+    public StoryPresenter(View view) {
         this.view = view;
-        followService = new FollowService();
+        statusService = new StatusService();
         userService = new UserService();
     }
 
@@ -53,8 +54,8 @@ public class FollowersPresenter {
             isLoading = true;
             view.setLoadingStatus(true);
 
-            followService.getFollowers(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE,
-                    lastFollower, new GetFollowersObserver());
+            statusService.getStory(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE,
+                    lastStatus, new GetStoryObserver());
         }
     }
 
@@ -64,15 +65,15 @@ public class FollowersPresenter {
         view.displayMessage("Getting user's profile...");
     }
 
-    public class GetFollowersObserver implements FollowService.GetFollowersObserver {
+    public class GetStoryObserver implements StatusService.GetStoryObserver {
         @Override
-        public void handleSuccess(List<User> followers, boolean hasMorePages) {
+        public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
             isLoading = false;
             view.setLoadingStatus(false);
-            lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
+            lastStatus = (statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null;
             setHasMorePages(hasMorePages);
 
-            view.addFollowers(followers);
+            view.addStories(statuses);
         }
 
         @Override
@@ -80,7 +81,7 @@ public class FollowersPresenter {
             isLoading = false;
             view.setLoadingStatus(false);
 
-            view.displayMessage("Failed to get followers: " + message);
+            view.displayMessage("Failed to get story: " + message);
         }
 
         @Override
@@ -88,7 +89,7 @@ public class FollowersPresenter {
             isLoading = false;
             view.setLoadingStatus(false);
 
-            view.displayMessage("Failed to get followers because of exception: " + ex.getMessage());
+            view.displayMessage("Failed to get story because of exception: " + ex.getMessage());
         }
     }
 
