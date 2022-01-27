@@ -60,7 +60,7 @@ public class FollowersPresenter {
 
     public void onUserClick(String userAlias) {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), userAlias,
-                new FollowersPresenter.GetUserObserver());
+                new GetUserObserver());
         view.displayMessage("Getting user's profile...");
     }
 
