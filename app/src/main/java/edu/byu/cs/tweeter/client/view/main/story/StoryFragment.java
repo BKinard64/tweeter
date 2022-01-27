@@ -113,7 +113,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View {
     }
 
     @Override
-    public void addStories(List<Status> statuses) {
+    public void addStatuses(List<Status> statuses) {
         storyRecyclerViewAdapter.addItems(statuses);
     }
 

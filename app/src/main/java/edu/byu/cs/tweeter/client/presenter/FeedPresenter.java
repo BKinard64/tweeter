@@ -8,7 +8,7 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class StoryPresenter {
+public class FeedPresenter {
 
     private static final int PAGE_SIZE = 10;
 
@@ -27,7 +27,7 @@ public class StoryPresenter {
     private boolean hasMorePages;
     private boolean isLoading = false;
 
-    public StoryPresenter(View view) {
+    public FeedPresenter(View view) {
         this.view = view;
         statusService = new StatusService();
         userService = new UserService();
@@ -54,18 +54,18 @@ public class StoryPresenter {
             isLoading = true;
             view.setLoadingStatus(true);
 
-            statusService.getStory(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE,
-                    lastStatus, new GetStoryObserver());
+            statusService.getFeed(Cache.getInstance().getCurrUserAuthToken(), user, PAGE_SIZE,
+                    lastStatus, new GetFeedObserver());
         }
     }
 
     public void onUserClick(String userAlias) {
         userService.getUser(Cache.getInstance().getCurrUserAuthToken(), userAlias,
-                new GetUserObserver());
+                            new GetUserObserver());
         view.displayMessage("Getting user's profile...");
     }
 
-    public class GetStoryObserver implements StatusService.GetStoryObserver {
+    public class GetFeedObserver implements StatusService.GetFeedObserver {
         @Override
         public void handleSuccess(List<Status> statuses, boolean hasMorePages) {
             isLoading = false;
@@ -81,7 +81,7 @@ public class StoryPresenter {
             isLoading = false;
             view.setLoadingStatus(false);
 
-            view.displayMessage("Failed to get story: " + message);
+            view.displayMessage("Failed to get feed: " + message);
         }
 
         @Override
@@ -89,7 +89,7 @@ public class StoryPresenter {
             isLoading = false;
             view.setLoadingStatus(false);
 
-            view.displayMessage("Failed to get story because of exception: " + ex.getMessage());
+            view.displayMessage("Failed to get feed because of exception: " + ex.getMessage());
         }
     }
 
