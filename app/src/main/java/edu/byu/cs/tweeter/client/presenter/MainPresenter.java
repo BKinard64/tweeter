@@ -3,10 +3,13 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter {
@@ -16,6 +19,7 @@ public class MainPresenter {
         void setCount(boolean isFollowingCount, int count);
         void updateFollowButton(boolean removed);
         void enableFollowButton(boolean value);
+        void logoutUser();
     }
 
     private View view;
@@ -48,6 +52,16 @@ public class MainPresenter {
                                     new FollowObserver(selectedUser));
             view.displayMessage("Adding " + selectedUser.getName() + "...");
         }
+    }
+
+    public void setFollowButton(User selectedUser) {
+        followService.isFollower(Cache.getInstance().getCurrUserAuthToken(),
+                                Cache.getInstance().getCurrUser(), selectedUser,
+                                new IsFollowerObserver());
+    }
+
+    public void onLogoutButtonClicked() {
+        userService.logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
     }
 
     public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
@@ -135,6 +149,40 @@ public class MainPresenter {
         public void handleException(Exception ex) {
             view.displayMessage("Failed to unfollow because of exception: " + ex.getMessage());
             view.enableFollowButton(true);
+        }
+    }
+
+    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+        @Override
+        public void handleSuccess(boolean isFollower) {
+            view.updateFollowButton(!isFollower);
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayMessage("Failed to determine following relationship: " + message);
+        }
+
+        @Override
+        public void handleException(Exception ex) {
+            view.displayMessage("Failed to determine following relationship because of exception: " + ex.getMessage());
+        }
+    }
+
+    public class LogoutObserver implements UserService.LogoutObserver {
+        @Override
+        public void handleSuccess() {
+            view.logoutUser();
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            view.displayMessage("Failed to logout: " + message);
+        }
+
+        @Override
+        public void handleException(Exception ex) {
+            view.displayMessage("Failed to logout because of exception: " + ex.getMessage());
         }
     }
 }
