@@ -12,11 +12,11 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountT
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
-import edu.byu.cs.tweeter.client.model.service.handler.GetFollowersCountHandler;
-import edu.byu.cs.tweeter.client.model.service.handler.GetFollowingCountHandler;
+import edu.byu.cs.tweeter.client.model.service.handler.CountHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.IsFollowerHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.PagedTaskHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleNotificationHandler;
+import edu.byu.cs.tweeter.client.model.service.observer.CountObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -42,35 +42,23 @@ public class FollowService {
         executor.execute(getFollowersTask);
     }
 
-    public interface GetFollowingCountObserver {
-        void handleSuccess(int count);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface GetFollowingCountObserver extends CountObserver{}
 
     public void getFollowingCount(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, GetFollowingCountObserver getFollowingCountObserver) {
         // Get count of most recently selected user's followees (who they are following)
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(currUserAuthToken,
-                selectedUser, new GetFollowingCountHandler(getFollowingCountObserver));
+                selectedUser, new CountHandler(getFollowingCountObserver));
         executor.execute(followingCountTask);
     }
 
-    // GetFollowingCountHandler
-
-    public interface GetFollowersCountObserver {
-        void handleSuccess(int count);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface GetFollowersCountObserver extends CountObserver {}
 
     public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, GetFollowersCountObserver getFollowersCountObserver) {
         // Get count of most recently selected user's followers.
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
-                selectedUser, new GetFollowersCountHandler(getFollowersCountObserver));
+                selectedUser, new CountHandler(getFollowersCountObserver));
         executor.execute(followersCountTask);
     }
-
-    // GetFollowersCountHandler
 
     public interface FollowObserver extends SimpleNotificationObserver {}
 
@@ -81,8 +69,6 @@ public class FollowService {
         executor.execute(followTask);
     }
 
-    // FollowHandler
-
     public interface UnfollowObserver extends SimpleNotificationObserver {}
 
     public void unfollow(AuthToken currUserAuthToken, User selectedUser, UnfollowObserver unfollowObserver) {
@@ -91,8 +77,6 @@ public class FollowService {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(unfollowTask);
     }
-
-    // UnfollowHandler
 
     public interface IsFollowerObserver {
         void handleSuccess(boolean isFollower);
@@ -106,7 +90,5 @@ public class FollowService {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(isFollowerTask);
     }
-
-    // IsFollowerHandler
 
 }
