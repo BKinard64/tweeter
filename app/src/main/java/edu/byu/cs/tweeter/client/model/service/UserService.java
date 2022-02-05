@@ -7,10 +7,10 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.RegisterTask;
+import edu.byu.cs.tweeter.client.model.service.handler.AuthenticationHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.GetUserHandler;
-import edu.byu.cs.tweeter.client.model.service.handler.LoginHandler;
-import edu.byu.cs.tweeter.client.model.service.handler.RegisterHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleNotificationHandler;
+import edu.byu.cs.tweeter.client.model.service.observer.AuthenticationObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -30,29 +30,21 @@ public class UserService {
         executor.execute(getUserTask);
     }
 
-    public interface LoginObserver {
-        void handleSuccess(User user, AuthToken authToken);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface LoginObserver extends AuthenticationObserver {}
 
     public void login(String username, String password, LoginObserver loginObserver) {
         // Send the login request.
-        LoginTask loginTask = new LoginTask(username, password, new LoginHandler(loginObserver));
+        LoginTask loginTask = new LoginTask(username, password, new AuthenticationHandler(loginObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(loginTask);
     }
 
-    public interface RegisterObserver {
-        void handleSuccess(User user, AuthToken authToken);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface RegisterObserver extends AuthenticationObserver {}
 
     public void register(String firstName, String lastName, String username, String password, String imageBytesBase64, RegisterObserver registerObserver) {
         // Send register request.
         RegisterTask registerTask = new RegisterTask(firstName, lastName, username, password,
-                                                    imageBytesBase64, new RegisterHandler(registerObserver));
+                                                    imageBytesBase64, new AuthenticationHandler(registerObserver));
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(registerTask);
