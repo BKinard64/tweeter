@@ -13,40 +13,31 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.handler.GetFollowersCountHandler;
-import edu.byu.cs.tweeter.client.model.service.handler.GetFollowersHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.GetFollowingCountHandler;
-import edu.byu.cs.tweeter.client.model.service.handler.GetFollowingHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.IsFollowerHandler;
+import edu.byu.cs.tweeter.client.model.service.handler.PagedTaskHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleNotificationHandler;
-import edu.byu.cs.tweeter.client.model.service.observer.ServiceObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowService {
 
-    public interface GetFollowingObserver {
-        void handleSuccess(List<User> followees, boolean hasMorePages);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface GetFollowingObserver extends PagedObserver<User>{}
 
     public void getFollowing(AuthToken currUserAuthToken, User user, int pageSize, User lastFollowee, GetFollowingObserver getFollowingObserver) {
         GetFollowingTask getFollowingTask = new GetFollowingTask(currUserAuthToken,
-                user, pageSize, lastFollowee, new GetFollowingHandler(getFollowingObserver));
+                user, pageSize, lastFollowee, new PagedTaskHandler<User>(getFollowingObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(getFollowingTask);
     }
 
-    public interface GetFollowersObserver {
-        void handleSuccess(List<User> followers, boolean hasMorePages);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
+    public interface GetFollowersObserver extends PagedObserver<User> {}
 
     public void getFollowers(AuthToken currUserAuthToken, User user, int pageSize, User lastFollower, GetFollowersObserver getFollowersObserver) {
-        GetFollowersTask getFollowersTask = new GetFollowersTask(Cache.getInstance().getCurrUserAuthToken(),
-                user, pageSize, lastFollower, new GetFollowersHandler(getFollowersObserver));
+        GetFollowersTask getFollowersTask = new GetFollowersTask(currUserAuthToken,
+                user, pageSize, lastFollower, new PagedTaskHandler<User>(getFollowersObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(getFollowersTask);
     }
