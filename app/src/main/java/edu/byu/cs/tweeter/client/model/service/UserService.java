@@ -24,18 +24,14 @@ public class UserService {
         executor.execute(getUserTask);
     }
 
-    public interface LoginObserver extends AuthenticationObserver {}
-
-    public void login(String username, String password, LoginObserver loginObserver) {
+    public void login(String username, String password, AuthenticationObserver loginObserver) {
         // Send the login request.
         LoginTask loginTask = new LoginTask(username, password, new AuthenticationHandler(loginObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(loginTask);
     }
 
-    public interface RegisterObserver extends AuthenticationObserver {}
-
-    public void register(String firstName, String lastName, String username, String password, String imageBytesBase64, RegisterObserver registerObserver) {
+    public void register(String firstName, String lastName, String username, String password, String imageBytesBase64, AuthenticationObserver registerObserver) {
         // Send register request.
         RegisterTask registerTask = new RegisterTask(firstName, lastName, username, password,
                                                     imageBytesBase64, new AuthenticationHandler(registerObserver));
@@ -44,9 +40,7 @@ public class UserService {
         executor.execute(registerTask);
     }
 
-    public interface LogoutObserver extends SimpleNotificationObserver {}
-
-    public void logout(AuthToken currUserAuthToken, LogoutObserver logoutObserver) {
+    public void logout(AuthToken currUserAuthToken, SimpleNotificationObserver logoutObserver) {
         LogoutTask logoutTask = new LogoutTask(currUserAuthToken, new SimpleNotificationHandler(logoutObserver));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(logoutTask);

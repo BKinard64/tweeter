@@ -5,6 +5,7 @@ import java.util.List;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowingPresenter {
@@ -63,7 +64,7 @@ public class FollowingPresenter {
         view.displayMessage("Getting user's profile...");
     }
 
-    public class GetFollowingObserver implements FollowService.GetFollowingObserver {
+    public class GetFollowingObserver implements PagedObserver<User> {
         @Override
         public void handleSuccess(List<User> followees, boolean hasMorePages) {
             isLoading = false;

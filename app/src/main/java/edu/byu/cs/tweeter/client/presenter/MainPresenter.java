@@ -14,6 +14,8 @@ import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.CountObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -141,7 +143,7 @@ public class MainPresenter {
         }
     }
 
-    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
+    public class GetFollowersCountObserver implements CountObserver {
         @Override
         public void handleSuccess(int count) {
             view.setCount(false, count);
@@ -158,7 +160,7 @@ public class MainPresenter {
         }
     }
 
-    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver {
+    public class GetFollowingCountObserver implements CountObserver {
         @Override
         public void handleSuccess(int count) {
             view.setCount(true, count);
@@ -175,7 +177,7 @@ public class MainPresenter {
         }
     }
 
-    public class FollowObserver implements FollowService.FollowObserver {
+    public class FollowObserver implements SimpleNotificationObserver {
         private User selectedUser;
 
         public FollowObserver(User selectedUser) {
@@ -202,7 +204,7 @@ public class MainPresenter {
         }
     }
 
-    public class UnfollowObserver implements FollowService.UnfollowObserver {
+    public class UnfollowObserver implements SimpleNotificationObserver {
         private User selectedUser;
 
         public UnfollowObserver(User selectedUser) {
@@ -246,7 +248,7 @@ public class MainPresenter {
         }
     }
 
-    public class LogoutObserver implements UserService.LogoutObserver {
+    public class LogoutObserver implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
             view.logoutUser();
@@ -263,7 +265,7 @@ public class MainPresenter {
         }
     }
 
-    public class PostStatusObserver implements StatusService.PostStatusObserver {
+    public class PostStatusObserver implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
             view.successfulPost();
