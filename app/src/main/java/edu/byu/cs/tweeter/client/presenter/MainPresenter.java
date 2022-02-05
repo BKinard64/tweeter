@@ -229,7 +229,7 @@ public class MainPresenter {
         }
     }
 
-    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+    public class IsFollowerObserver implements edu.byu.cs.tweeter.client.model.service.observer.IsFollowerObserver {
         @Override
         public void handleSuccess(boolean isFollower) {
             view.updateFollowButton(!isFollower);

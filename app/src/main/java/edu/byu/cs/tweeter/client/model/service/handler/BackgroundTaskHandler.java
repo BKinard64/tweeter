@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.BackgroundTask;
 import edu.byu.cs.tweeter.client.model.service.observer.ServiceObserver;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 
 public abstract class BackgroundTaskHandler<T extends ServiceObserver> extends Handler {
 

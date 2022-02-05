@@ -90,7 +90,7 @@ public class FollowingPresenter {
         }
     }
 
-    public class GetUserObserver implements UserService.GetUserObserver {
+    public class GetUserObserver implements edu.byu.cs.tweeter.client.model.service.observer.GetUserObserver {
         @Override
         public void handleSuccess(User user) {
             view.goToUserPage(user);

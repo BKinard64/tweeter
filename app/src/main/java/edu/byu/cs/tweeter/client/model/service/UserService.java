@@ -11,17 +11,11 @@ import edu.byu.cs.tweeter.client.model.service.handler.AuthenticationHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.GetUserHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleNotificationHandler;
 import edu.byu.cs.tweeter.client.model.service.observer.AuthenticationObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.User;
 
 public class UserService {
-
-    public interface GetUserObserver {
-        void handleSuccess(User user);
-        void handleFailure(String message);
-        void handleException(Exception ex);
-    }
 
     public void getUser(AuthToken currUserAuthToken, String userAlias, GetUserObserver getUserObserver) {
         GetUserTask getUserTask = new GetUserTask(currUserAuthToken,
