@@ -7,13 +7,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.observer.CountObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -41,11 +41,10 @@ public class MainPresenter {
     }
 
     public void updateSelectedUserFollowingAndFollowers(User selectedUser) {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
         followService.getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                                        executor, new GetFollowersCountObserver());
+                                        new GetFollowersCountObserver());
         followService.getFollowingCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                                        executor, new GetFollowingCountObserver());
+                                        new GetFollowingCountObserver());
     }
 
     public void onFollowButtonClick(boolean wasFollowing, User selectedUser) {
@@ -141,7 +140,7 @@ public class MainPresenter {
         }
     }
 
-    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver {
+    public class GetFollowersCountObserver implements CountObserver {
         @Override
         public void handleSuccess(int count) {
             view.setCount(false, count);
@@ -158,7 +157,7 @@ public class MainPresenter {
         }
     }
 
-    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver {
+    public class GetFollowingCountObserver implements CountObserver {
         @Override
         public void handleSuccess(int count) {
             view.setCount(true, count);
@@ -175,7 +174,7 @@ public class MainPresenter {
         }
     }
 
-    public class FollowObserver implements FollowService.FollowObserver {
+    public class FollowObserver implements SimpleNotificationObserver {
         private User selectedUser;
 
         public FollowObserver(User selectedUser) {
@@ -202,7 +201,7 @@ public class MainPresenter {
         }
     }
 
-    public class UnfollowObserver implements FollowService.UnfollowObserver {
+    public class UnfollowObserver implements SimpleNotificationObserver {
         private User selectedUser;
 
         public UnfollowObserver(User selectedUser) {
@@ -229,7 +228,7 @@ public class MainPresenter {
         }
     }
 
-    public class IsFollowerObserver implements FollowService.IsFollowerObserver {
+    public class IsFollowerObserver implements edu.byu.cs.tweeter.client.model.service.observer.IsFollowerObserver {
         @Override
         public void handleSuccess(boolean isFollower) {
             view.updateFollowButton(!isFollower);
@@ -246,7 +245,7 @@ public class MainPresenter {
         }
     }
 
-    public class LogoutObserver implements UserService.LogoutObserver {
+    public class LogoutObserver implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
             view.logoutUser();
@@ -263,7 +262,7 @@ public class MainPresenter {
         }
     }
 
-    public class PostStatusObserver implements StatusService.PostStatusObserver {
+    public class PostStatusObserver implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
             view.successfulPost();
