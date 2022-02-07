@@ -43,11 +43,10 @@ public class MainPresenter {
     }
 
     public void updateSelectedUserFollowingAndFollowers(User selectedUser) {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
         followService.getFollowersCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                                        executor, new GetFollowersCountObserver());
+                                        new GetFollowersCountObserver());
         followService.getFollowingCount(Cache.getInstance().getCurrUserAuthToken(), selectedUser,
-                                        executor, new GetFollowingCountObserver());
+                                        new GetFollowingCountObserver());
     }
 
     public void onFollowButtonClick(boolean wasFollowing, User selectedUser) {

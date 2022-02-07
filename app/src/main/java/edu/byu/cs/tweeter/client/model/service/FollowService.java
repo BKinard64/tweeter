@@ -21,55 +21,50 @@ import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserv
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowService {
+public class FollowService extends Service {
 
     public void getFollowing(AuthToken currUserAuthToken, User user, int pageSize, User lastFollowee, PagedObserver<User> getFollowingObserver) {
         GetFollowingTask getFollowingTask = new GetFollowingTask(currUserAuthToken,
                 user, pageSize, lastFollowee, new PagedTaskHandler<User>(getFollowingObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getFollowingTask);
+        executeTask(getFollowingTask);
     }
 
     public void getFollowers(AuthToken currUserAuthToken, User user, int pageSize, User lastFollower, PagedObserver<User> getFollowersObserver) {
         GetFollowersTask getFollowersTask = new GetFollowersTask(currUserAuthToken,
                 user, pageSize, lastFollower, new PagedTaskHandler<User>(getFollowersObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getFollowersTask);
+        executeTask(getFollowersTask);
     }
 
-    public void getFollowingCount(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, CountObserver getFollowingCountObserver) {
+    public void getFollowingCount(AuthToken currUserAuthToken, User selectedUser, CountObserver getFollowingCountObserver) {
         // Get count of most recently selected user's followees (who they are following)
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(currUserAuthToken,
                 selectedUser, new CountHandler(getFollowingCountObserver));
-        executor.execute(followingCountTask);
+        executeTask(followingCountTask);
     }
 
-    public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, CountObserver getFollowersCountObserver) {
+    public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser, CountObserver getFollowersCountObserver) {
         // Get count of most recently selected user's followers.
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
                 selectedUser, new CountHandler(getFollowersCountObserver));
-        executor.execute(followersCountTask);
+        executeTask(followersCountTask);
     }
 
     public void follow(AuthToken currUserAuthToken, User selectedUser, SimpleNotificationObserver followObserver) {
         FollowTask followTask = new FollowTask(currUserAuthToken, selectedUser,
                                                 new SimpleNotificationHandler(followObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(followTask);
+        executeTask(followTask);
     }
 
     public void unfollow(AuthToken currUserAuthToken, User selectedUser, SimpleNotificationObserver unfollowObserver) {
         UnfollowTask unfollowTask = new UnfollowTask(currUserAuthToken, selectedUser,
                                                         new SimpleNotificationHandler(unfollowObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(unfollowTask);
+        executeTask(unfollowTask);
     }
 
     public void isFollower(AuthToken currUserAuthToken, User currUser, User selectedUser, IsFollowerObserver isFollowerObserver) {
         IsFollowerTask isFollowerTask = new IsFollowerTask(currUserAuthToken,
                 currUser, selectedUser, new IsFollowerHandler(isFollowerObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(isFollowerTask);
+        executeTask(isFollowerTask);
     }
 
 }
