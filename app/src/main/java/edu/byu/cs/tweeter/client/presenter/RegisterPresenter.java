@@ -1,87 +1,49 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.text.Editable;
-
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.observer.AuthenticationObserver;
-import edu.byu.cs.tweeter.model.domain.AuthToken;
-import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.client.view.AuthenticationView;
 
-public class RegisterPresenter {
+public class RegisterPresenter extends AuthenticationPresenter {
 
-    public interface View {
-        void displayMessage(String message);
-        void registerSuccessful(User user);
+    public RegisterPresenter(AuthenticationView view) {
+        super(view);
     }
 
-    private View view;
-    private UserService userService;
-
-    public RegisterPresenter(View view) {
-        this.view = view;
-        userService = new UserService();
-    }
-
-    public void validateRegistration(Editable firstName, Editable lastName, Editable username, Editable password, Drawable image) {
+    public void validateRegistration(String firstName, String lastName, String username, String password, boolean isImageMissing) {
         if (firstName.length() == 0) {
             throw new IllegalArgumentException("First Name cannot be empty.");
         }
         if (lastName.length() == 0) {
             throw new IllegalArgumentException("Last Name cannot be empty.");
         }
-        if (username.length() == 0) {
-            throw new IllegalArgumentException("Alias cannot be empty.");
-        }
-        if (username.charAt(0) != '@') {
-            throw new IllegalArgumentException("Alias must begin with @.");
-        }
-        if (username.length() < 2) {
-            throw new IllegalArgumentException("Alias must contain 1 or more characters after the @.");
-        }
-        if (password.length() == 0) {
-            throw new IllegalArgumentException("Password cannot be empty.");
-        }
 
-        if (image == null) {
+        validateUsernameAndPassword(username, password);
+
+        if (isImageMissing) {
             throw new IllegalArgumentException("Profile image must be uploaded.");
         }
     }
 
-    public void initiateRegister(String firstName, String lastName, String username, String password, Bitmap image) {
-        // Convert image to byte array.
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+    public void initiateRegister(String firstName, String lastName, String username, String password, ByteArrayOutputStream bos) {
         byte[] imageBytes = bos.toByteArray();
 
         // Intentionally, Use the java Base64 encoder so it is compatible with M4.
         String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
 
-        userService.register(firstName, lastName, username, password, imageBytesBase64, new RegisterObserver());
+        getUserService().register(firstName, lastName, username, password, imageBytesBase64, new RegisterObserver((AuthenticationView) getView()));
     }
 
-    public class RegisterObserver implements AuthenticationObserver {
-        @Override
-        public void handleSuccess(User user, AuthToken authToken) {
-            Cache.getInstance().setCurrUser(user);
-            Cache.getInstance().setCurrUserAuthToken(authToken);
-
-            view.registerSuccessful(user);
+    public class RegisterObserver extends AuthenticationObserver {
+        public RegisterObserver(AuthenticationView view) {
+            super(view);
         }
 
         @Override
-        public void handleFailure(String message) {
-            view.displayMessage("Failed to register: " + message);
-        }
-
-        @Override
-        public void handleException(Exception ex) {
-            view.displayMessage("Failed to register because of exception: " + ex.getMessage());
+        protected String getMessagePrefix() {
+            return "Failed to register";
         }
     }
 }
