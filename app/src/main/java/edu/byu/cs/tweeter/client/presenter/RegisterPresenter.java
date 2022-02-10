@@ -3,8 +3,7 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-import edu.byu.cs.tweeter.client.model.service.observer.AuthenticationObserver;
-import edu.byu.cs.tweeter.client.view.AuthenticationView;
+import edu.byu.cs.tweeter.client.presenter.view.AuthenticationView;
 
 public class RegisterPresenter extends AuthenticationPresenter {
 
@@ -29,18 +28,12 @@ public class RegisterPresenter extends AuthenticationPresenter {
 
     public void initiateRegister(String firstName, String lastName, String username, String password, ByteArrayOutputStream bos) {
         byte[] imageBytes = bos.toByteArray();
-
-        // Intentionally, Use the java Base64 encoder so it is compatible with M4.
         String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
 
-        getUserService().register(firstName, lastName, username, password, imageBytesBase64, new RegisterObserver((AuthenticationView) getView()));
+        getUserService().register(firstName, lastName, username, password, imageBytesBase64, new RegisterObserver());
     }
 
     public class RegisterObserver extends AuthenticationObserver {
-        public RegisterObserver(AuthenticationView view) {
-            super(view);
-        }
-
         @Override
         protected String getMessagePrefix() {
             return "Failed to register";

@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import edu.byu.cs.tweeter.client.model.service.observer.AuthenticationObserver;
-import edu.byu.cs.tweeter.client.view.AuthenticationView;
+import edu.byu.cs.tweeter.client.presenter.view.AuthenticationView;
 
 public class LoginPresenter extends AuthenticationPresenter {
 
@@ -14,14 +13,10 @@ public class LoginPresenter extends AuthenticationPresenter {
     }
 
     public void initiateLogin(String username, String password) {
-        getUserService().login(username, password, new LoginObserver((AuthenticationView) getView()));
+        getUserService().login(username, password, new LoginObserver());
     }
 
     public class LoginObserver extends AuthenticationObserver {
-        public LoginObserver(AuthenticationView view) {
-            super(view);
-        }
-
         @Override
         protected String getMessagePrefix() {
             return "Failed to login";

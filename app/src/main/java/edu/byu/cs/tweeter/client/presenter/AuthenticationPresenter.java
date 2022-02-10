@@ -1,7 +1,11 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.UserService;
-import edu.byu.cs.tweeter.client.view.AuthenticationView;
+import edu.byu.cs.tweeter.client.model.service.observer.IAuthenticationObserver;
+import edu.byu.cs.tweeter.client.presenter.view.AuthenticationView;
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
 
 public class AuthenticationPresenter extends Presenter {
 
@@ -10,6 +14,10 @@ public class AuthenticationPresenter extends Presenter {
     public AuthenticationPresenter(AuthenticationView view) {
         super(view);
         userService = new UserService();
+    }
+
+    public AuthenticationView getAuthView() {
+        return (AuthenticationView) getView();
     }
 
     public UserService getUserService() {
@@ -31,4 +39,14 @@ public class AuthenticationPresenter extends Presenter {
         }
     }
 
+    public abstract class AuthenticationObserver extends Observer implements IAuthenticationObserver {
+
+        @Override
+        public void handleSuccess(User authenticatedUser, AuthToken authToken) {
+            Cache.getInstance().setCurrUser(authenticatedUser);
+            Cache.getInstance().setCurrUserAuthToken(authToken);
+
+            getAuthView().authenticationSuccessful(authenticatedUser);
+        }
+    }
 }
