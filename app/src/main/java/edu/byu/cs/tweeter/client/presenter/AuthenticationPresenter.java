@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.observer.IAuthenticationObserver;
 import edu.byu.cs.tweeter.client.presenter.view.AuthenticationView;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -9,19 +8,12 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class AuthenticationPresenter extends Presenter {
 
-    private UserService userService;
-
     public AuthenticationPresenter(AuthenticationView view) {
         super(view);
-        userService = new UserService();
     }
 
     public AuthenticationView getAuthView() {
         return (AuthenticationView) getView();
-    }
-
-    public UserService getUserService() {
-        return userService;
     }
 
     protected void validateUsernameAndPassword(String username, String password) {
