@@ -1,5 +1,5 @@
 package edu.byu.cs.tweeter.client.model.service.observer;
 
-public interface CountObserver extends ServiceObserver {
+public interface ICountObserver extends ServiceObserver {
     void handleSuccess(int count);
 }

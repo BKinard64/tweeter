@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.client.view.login;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,16 +18,19 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import java.io.ByteArrayOutputStream;
+
 import edu.byu.cs.client.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.presenter.RegisterPresenter;
+import edu.byu.cs.tweeter.client.presenter.view.AuthenticationView;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
 /**
  * Implements the register screen.
  */
-public class RegisterFragment extends Fragment implements RegisterPresenter.View {
+public class RegisterFragment extends Fragment implements AuthenticationView {
     private static final String LOG_TAG = "RegisterFragment";
     private static final int RESULT_IMAGE = 10;
 
@@ -82,16 +86,20 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
             public void onClick(View view) {
                 // Register and move to MainActivity.
                 try {
-                    presenter.validateRegistration(firstName.getText(), lastName.getText(),
-                                                    alias.getText(), password.getText(),
-                                                    imageToUpload.getDrawable());
+                    presenter.validateRegistration(firstName.getText().toString(), lastName.getText().toString(),
+                                                    alias.getText().toString(), password.getText().toString(),
+                                                    imageToUpload.getDrawable() == null);
                     errorView.setText(null);
                     registeringToast = Toast.makeText(getContext(), "Registering...", Toast.LENGTH_LONG);
                     registeringToast.show();
 
+                    // Convert image to byte array.
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap().compress(Bitmap.CompressFormat.JPEG, 100, bos);
+
                     presenter.initiateRegister(firstName.getText().toString(), lastName.getText().toString(),
                                                 alias.getText().toString(), password.getText().toString(),
-                                        ((BitmapDrawable) imageToUpload.getDrawable()).getBitmap());
+                                                bos);
                 } catch (Exception e) {
                     errorView.setText(e.getMessage());
                 }
@@ -119,7 +127,7 @@ public class RegisterFragment extends Fragment implements RegisterPresenter.View
     }
 
     @Override
-    public void registerSuccessful(User user) {
+    public void authenticationSuccessful(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
 

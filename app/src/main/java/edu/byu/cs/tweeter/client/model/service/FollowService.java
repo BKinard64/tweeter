@@ -11,8 +11,8 @@ import edu.byu.cs.tweeter.client.model.service.handler.CountHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.IsFollowerHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.PagedTaskHandler;
 import edu.byu.cs.tweeter.client.model.service.handler.SimpleNotificationHandler;
-import edu.byu.cs.tweeter.client.model.service.observer.CountObserver;
-import edu.byu.cs.tweeter.client.model.service.observer.IsFollowerObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.ICountObserver;
+import edu.byu.cs.tweeter.client.model.service.observer.IsFollowerObserverInterface;
 import edu.byu.cs.tweeter.client.model.service.observer.PagedObserver;
 import edu.byu.cs.tweeter.client.model.service.observer.SimpleNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -32,14 +32,14 @@ public class FollowService extends Service {
         executeTask(getFollowersTask);
     }
 
-    public void getFollowingCount(AuthToken currUserAuthToken, User selectedUser, CountObserver getFollowingCountObserver) {
+    public void getFollowingCount(AuthToken currUserAuthToken, User selectedUser, ICountObserver getFollowingCountObserver) {
         // Get count of most recently selected user's followees (who they are following)
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(currUserAuthToken,
                 selectedUser, new CountHandler(getFollowingCountObserver));
         executeTask(followingCountTask);
     }
 
-    public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser, CountObserver getFollowersCountObserver) {
+    public void getFollowersCount(AuthToken currUserAuthToken, User selectedUser, ICountObserver getFollowersCountObserver) {
         // Get count of most recently selected user's followers.
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
                 selectedUser, new CountHandler(getFollowersCountObserver));
@@ -58,7 +58,7 @@ public class FollowService extends Service {
         executeTask(unfollowTask);
     }
 
-    public void isFollower(AuthToken currUserAuthToken, User currUser, User selectedUser, IsFollowerObserver isFollowerObserver) {
+    public void isFollower(AuthToken currUserAuthToken, User currUser, User selectedUser, IsFollowerObserverInterface isFollowerObserver) {
         IsFollowerTask isFollowerTask = new IsFollowerTask(currUserAuthToken,
                 currUser, selectedUser, new IsFollowerHandler(isFollowerObserver));
         executeTask(isFollowerTask);
