@@ -1,5 +1,5 @@
 package edu.byu.cs.tweeter.client.model.service.observer;
 
-public interface IsFollowerObserver extends ServiceObserver {
+public interface IsFollowerObserverInterface extends ServiceObserver {
     void handleSuccess(boolean isFollower);
 }
