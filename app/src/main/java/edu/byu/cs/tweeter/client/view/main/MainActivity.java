@@ -132,20 +132,28 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
     @Override
     public void onStatusPosted(String post) {
-        postingToast = Toast.makeText(this, "Posting Status...", Toast.LENGTH_LONG);
-        postingToast.show();
-
-        try {
-            presenter.onStatusPosted(post);
-        } catch (Exception ex) {
-            Log.e(LOG_TAG, ex.getMessage(), ex);
-            Toast.makeText(this, "Failed to post the status because of exception: " + ex.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        presenter.onStatusPosted(post);
     }
 
     @Override
     public void displayMessage(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void displayPostMessage(String message) {
+        postingToast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG);
+        postingToast.show();
+    }
+
+    @Override
+    public void clearPostMessage() {
+        postingToast.cancel();
+    }
+
+    @Override
+    public void logException(Exception ex) {
+        Log.e(LOG_TAG, ex.getMessage(), ex);
     }
 
     @Override
@@ -173,12 +181,6 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     @Override
     public void enableFollowButton(boolean value) {
         followButton.setEnabled(value);
-    }
-
-    @Override
-    public void successfulPost() {
-        postingToast.cancel();
-        Toast.makeText(MainActivity.this, "Successfully Posted!", Toast.LENGTH_LONG).show();
     }
 
     @Override
