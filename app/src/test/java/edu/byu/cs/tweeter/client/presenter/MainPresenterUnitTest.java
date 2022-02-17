@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -8,6 +9,7 @@ import org.mockito.stubbing.Answer;
 
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.presenter.view.MainView;
+import edu.byu.cs.tweeter.model.domain.Status;
 
 public class MainPresenterUnitTest {
 
@@ -31,6 +33,7 @@ public class MainPresenterUnitTest {
         Answer<Void> answer = new Answer<>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
+                verifyParameters(invocation);
                 MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
                 observer.handleSuccess();
                 return null;
@@ -45,6 +48,7 @@ public class MainPresenterUnitTest {
         Answer<Void> answer = new Answer<>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
+                verifyParameters(invocation);
                 MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
                 observer.handleFailure("the error message");
                 return null;
@@ -59,6 +63,7 @@ public class MainPresenterUnitTest {
         Answer<Void> answer = new Answer<>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
+                verifyParameters(invocation);
                 MainPresenter.PostStatusObserver observer = invocation.getArgument(2, MainPresenter.PostStatusObserver.class);
                 observer.handleException(new Exception("the exception message"));
                 return null;
@@ -66,6 +71,14 @@ public class MainPresenterUnitTest {
         };
 
         verifyPostStatus(answer, "Failed to post status because of exception: the exception message");
+    }
+
+    private void verifyParameters(InvocationOnMock invocation) {
+        Assert.assertNotNull(invocation.getArgument(1));
+        Assert.assertNotNull(invocation.getArgument(2));
+
+        Status status = invocation.getArgument(1, Status.class);
+        Assert.assertEquals("Test Status", status.getPost());
     }
 
     private void verifyPostStatus(Answer<Void> answer, String message) {
