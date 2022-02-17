@@ -28,7 +28,13 @@ public class MainPresenter extends Presenter {
     public MainPresenter(MainView view) {
         super(view);
         followService = new FollowService();
-        statusService = new StatusService();
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+        return statusService;
     }
 
     public MainView getMainView() {
@@ -67,7 +73,7 @@ public class MainPresenter extends Presenter {
     public void onStatusPosted(String post) throws ParseException, MalformedURLException {
         Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(),
                                         parseURLs(post), parseMentions(post));
-        statusService.postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus,
+        getStatusService().postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus,
                                 new PostStatusObserver());
     }
 
