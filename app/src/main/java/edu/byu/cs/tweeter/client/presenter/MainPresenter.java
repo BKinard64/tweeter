@@ -28,7 +28,13 @@ public class MainPresenter extends Presenter {
     public MainPresenter(MainView view) {
         super(view);
         followService = new FollowService();
-        statusService = new StatusService();
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+        return statusService;
     }
 
     public MainView getMainView() {
@@ -64,11 +70,19 @@ public class MainPresenter extends Presenter {
         getUserService().logout(Cache.getInstance().getCurrUserAuthToken(), new LogoutObserver());
     }
 
-    public void onStatusPosted(String post) throws ParseException, MalformedURLException {
-        Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(),
-                                        parseURLs(post), parseMentions(post));
-        statusService.postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus,
-                                new PostStatusObserver());
+    public void onStatusPosted(String post) {
+        getMainView().displayPostMessage("Posting Status...");
+
+        try {
+            Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(),
+                    parseURLs(post), parseMentions(post));
+
+            getStatusService().postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus,
+                    new PostStatusObserver());
+        } catch (Exception ex) {
+            getMainView().logException(ex);
+            getMainView().displayMessage("Failed to post the status because of exception: " + ex.getMessage());
+        }
     }
 
     private String getFormattedDateTime() throws ParseException {
@@ -223,7 +237,20 @@ public class MainPresenter extends Presenter {
     public class PostStatusObserver extends Observer implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
-            getMainView().successfulPost();
+            getMainView().clearPostMessage();
+            getMainView().displayMessage("Successfully Posted!");
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            getMainView().clearPostMessage();
+            super.handleFailure(message);
+        }
+
+        @Override
+        public void handleException(Exception ex) {
+            getMainView().clearPostMessage();
+            super.handleException(ex);
         }
 
         @Override
