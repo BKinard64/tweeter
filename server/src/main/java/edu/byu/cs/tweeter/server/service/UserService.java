@@ -3,21 +3,42 @@ package edu.byu.cs.tweeter.server.service;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService {
-    public LoginResponse login(LoginRequest request) {
-        if (request.getUsername() == null) {
-            throw new RuntimeException("[Bad Request] Missing a username");
-        } else if (request.getPassword() == null) {
-            throw new RuntimeException("[Bad Request] Missing a password");
+    public AuthenticationResponse login(LoginRequest request) {
+        checkForUsernameAndPassword(request.getUsername(), request.getPassword());
+
+        // TODO: Generates dummy data. Replace with real implementation.
+        User user = getDummyUser();
+        AuthToken authToken = getDummyAuthToken();
+        return new AuthenticationResponse(user, authToken);
+    }
+
+    public AuthenticationResponse register(RegisterRequest request) {
+        checkForUsernameAndPassword(request.getUsername(), request.getPassword());
+        if (request.getFirstName() == null) {
+            throw new RuntimeException("[Bad Request] Missing a first name");
+        } else if (request.getLastName() == null) {
+            throw new RuntimeException("[Bad Request] Missing a last name");
+        } else if (request.getImage() == null) {
+            throw new RuntimeException("[Bad Request] Missing an image");
         }
 
         // TODO: Generates dummy data. Replace with real implementation.
         User user = getDummyUser();
         AuthToken authToken = getDummyAuthToken();
-        return new LoginResponse(user, authToken);
+        return new AuthenticationResponse(user, authToken);
+    }
+
+    private void checkForUsernameAndPassword(String username, String password) {
+        if (username == null) {
+            throw new RuntimeException("[Bad Request] Missing a username");
+        } else if (password == null) {
+            throw new RuntimeException("[Bad Request] Missing a password");
+        }
     }
 
     public User getDummyUser() {

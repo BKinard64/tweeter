@@ -8,7 +8,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.response.LoginResponse;
+import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
 /**
@@ -24,10 +24,8 @@ public class LoginTask extends AuthenticateTask {
     @Override
     protected Pair<User, AuthToken> doAuthentication(String username, String password) throws IOException, TweeterRemoteException {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        LoginResponse loginResponse = getServerFacade().login(loginRequest, "/login");
+        AuthenticationResponse loginResponse = getServerFacade().login(loginRequest, "/login");
 
-        User loggedInUser = loginResponse.getUser();
-        AuthToken authToken = loginResponse.getAuthToken();
-        return new Pair<>(loggedInUser, authToken);
+        return createUserAuthTokenPair(loginResponse);
     }
 }

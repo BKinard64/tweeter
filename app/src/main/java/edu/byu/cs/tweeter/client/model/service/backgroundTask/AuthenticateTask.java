@@ -8,6 +8,7 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
 public abstract class AuthenticateTask extends BackgroundTask {
@@ -47,5 +48,11 @@ public abstract class AuthenticateTask extends BackgroundTask {
     protected void loadSuccessBundle(Bundle msgBundle) {
         msgBundle.putSerializable(USER_KEY, authenticatedUser);
         msgBundle.putSerializable(AUTH_TOKEN_KEY, authToken);
+    }
+
+    protected Pair<User, AuthToken> createUserAuthTokenPair(AuthenticationResponse response) {
+        User authenticatedUser = response.getUser();
+        AuthToken authToken = response.getAuthToken();
+        return new Pair<>(authenticatedUser, authToken);
     }
 }
