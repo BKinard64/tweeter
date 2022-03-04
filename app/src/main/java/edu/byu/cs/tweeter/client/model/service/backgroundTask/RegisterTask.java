@@ -34,7 +34,7 @@ public class RegisterTask extends AuthenticateTask {
     }
 
     @Override
-    protected Pair<User, AuthToken> doAuthentication() {
+    protected Pair<User, AuthToken> doAuthentication(String username, String password) {
         // TODO: This will differ from LoginTask's implementation when we are no longer using fake data
         User registeredUser = getFakeData().getFirstUser();
         AuthToken authToken = getFakeData().getAuthToken();
