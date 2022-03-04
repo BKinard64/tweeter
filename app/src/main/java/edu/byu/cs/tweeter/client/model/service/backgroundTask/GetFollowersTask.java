@@ -20,7 +20,7 @@ public class GetFollowersTask extends PagedTask<User> {
     }
 
     @Override
-    protected Pair<List<User>, Boolean> getItems() {
+    protected Pair<List<User>, Boolean> getItems(AuthToken authToken, User targetUser, int limit, User lastFollower) {
         Pair<List<User>, Boolean> pageOfItems = getFakeData().getPageOfUsers(getLastItem(), getLimit(), getTargetUser());
         return pageOfItems;
     }

@@ -14,4 +14,8 @@ public abstract class AuthenticatedTask extends BackgroundTask {
         super(messageHandler);
         this.authToken = authToken;
     }
+
+    public AuthToken getAuthToken() {
+        return authToken;
+    }
 }
