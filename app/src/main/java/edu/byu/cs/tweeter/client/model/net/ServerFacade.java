@@ -3,11 +3,13 @@ package edu.byu.cs.tweeter.client.model.net;
 import java.io.IOException;
 
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 
@@ -45,6 +47,27 @@ public class ServerFacade {
      */
     public AuthenticationResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
         AuthenticationResponse response = clientCommunicator.doPost(urlPath, request, null, AuthenticationResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Returns the statuses of users that the user specified in the request is following. Uses information in
+     * the request object to limit the number of statuses returned and to return the next set of
+     * statuses after any that were returned in a previous request.
+     *
+     * @param request contains information about the user whose feed is to be returned and any
+     *                other information required to satisfy the request.
+     * @return the statuses.
+     */
+    public FeedResponse getFeed(FeedRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        FeedResponse response = clientCommunicator.doPost(urlPath, request, null, FeedResponse.class);
 
         if(response.isSuccess()) {
             return response;
