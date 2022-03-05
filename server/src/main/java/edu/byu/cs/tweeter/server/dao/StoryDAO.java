@@ -6,17 +6,17 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
- * A DAO for accessing 'feed' data from the database.
+ * A DAO for accessing 'story' data from the database.
  */
-public class FeedDAO {
+public class StoryDAO {
     /**
-     * Gets the count of statuses from the database that the user specified has in their feed. The
+     * Gets the count of statuses from the database that the user specified has in their story. The
      * current implementation uses generated data and doesn't actually access a database.
      *
      * @param user the User whose count of how many statuses is desired.
@@ -29,16 +29,16 @@ public class FeedDAO {
     }
 
     /**
-     * Gets the statuses from the database that the user specified in the request has in their feed. Uses
+     * Gets the statuses from the database that the user specified in the request has in their story. Uses
      * information in the request object to limit the number of statuses returned and to return the
      * next set of statuses after any that were returned in a previous request. The current
      * implementation returns generated data and doesn't actually access a database.
      *
-     * @param request contains information about the user whose feed is to be returned and any
+     * @param request contains information about the user whose story is to be returned and any
      *                other information required to satisfy the request.
      * @return the statuses.
      */
-    public FeedResponse getFeed(FeedRequest request) {
+    public StoryResponse getStory(StoryRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
@@ -60,7 +60,7 @@ public class FeedDAO {
             }
         }
 
-        return new FeedResponse(responseStatuses, hasMorePages);
+        return new StoryResponse(responseStatuses, hasMorePages);
     }
 
     /**
@@ -113,3 +113,4 @@ public class FeedDAO {
         return new FakeData();
     }
 }
+
