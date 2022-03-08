@@ -4,7 +4,9 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.request.UserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService {
@@ -38,6 +40,19 @@ public class UserService {
             throw new RuntimeException("[Bad Request] Missing a username");
         } else if (password == null) {
             throw new RuntimeException("[Bad Request] Missing a password");
+        }
+    }
+
+    public UserResponse getUser(UserRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
+        }
+
+        User user = getFakeData().findUserByAlias(request.getTargetUserAlias());
+        if (user == null) {
+            throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
+        } else {
+            return new UserResponse(user);
         }
     }
 

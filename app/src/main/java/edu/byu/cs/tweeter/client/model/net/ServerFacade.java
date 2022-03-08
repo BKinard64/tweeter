@@ -13,12 +13,14 @@ import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.request.UserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
+import edu.byu.cs.tweeter.model.net.response.UserResponse;
 
 /**
  * Acts as a Facade to the Tweeter server. All network requests to the server should go through
@@ -174,6 +176,24 @@ public class ServerFacade {
             throws IOException, TweeterRemoteException {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Returns the user specified in the request.
+     *
+     * @param request contains the alias of the user being retrieved.
+     * @return the user.
+     */
+    public UserResponse getUser(UserRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        UserResponse response = clientCommunicator.doPost(urlPath, request, null, UserResponse.class);
 
         if(response.isSuccess()) {
             return response;
