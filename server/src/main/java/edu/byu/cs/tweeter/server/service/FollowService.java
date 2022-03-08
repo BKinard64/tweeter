@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.server.service;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
@@ -31,6 +32,14 @@ public class FollowService {
     }
 
     public Response follow(FollowRequest request) {
+        if (request.getFolloweeAlias() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
+        }
+
+        return new Response(true);
+    }
+
+    public Response unfollow(UnfollowRequest request) {
         if (request.getFolloweeAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }

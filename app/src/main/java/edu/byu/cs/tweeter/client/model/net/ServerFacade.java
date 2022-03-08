@@ -10,6 +10,7 @@ import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
@@ -143,7 +144,31 @@ public class ServerFacade {
         }
     }
 
+    /**
+     * Follows the user specified in the request.
+     *
+     * @param request contains the alias of the user to follow
+     * @return success message
+     */
     public Response follow(FollowRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Unfollows the user specified in the request.
+     *
+     * @param request contains the alias of the user to unfollow
+     * @return success message
+     */
+    public Response unfollow(UnfollowRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
