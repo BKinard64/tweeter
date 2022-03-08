@@ -21,6 +21,10 @@ public abstract class CountTask extends AuthenticatedTask {
         this.targetUser = targetUser;
     }
 
+    public User getTargetUser() {
+        return targetUser;
+    }
+
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
         msgBundle.putInt(COUNT_KEY, 20);

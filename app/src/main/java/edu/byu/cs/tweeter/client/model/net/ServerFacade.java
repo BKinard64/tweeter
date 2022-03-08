@@ -6,6 +6,8 @@ import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
@@ -136,6 +138,42 @@ public class ServerFacade {
             throws IOException, TweeterRemoteException {
 
         FollowerResponse response = clientCommunicator.doPost(urlPath, request, null, FollowerResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Returns the number of users that the user specified in the request is following.
+     *
+     * @param request contains the alias of the user to get the following count of
+     * @return success message
+     */
+    public Response getFollowingCount(FollowingCountRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Returns the number of users that the user specified in the request is being followed by.
+     *
+     * @param request contains the alias of the user to get the followers count of
+     * @return success message
+     */
+    public Response getFollowersCount(FollowersCountRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
         if(response.isSuccess()) {
             return response;

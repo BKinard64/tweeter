@@ -2,8 +2,13 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
 import android.os.Handler;
 
+import java.io.IOException;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
  * Background task that queries how many other users a specified user is following.
@@ -16,7 +21,9 @@ public class GetFollowingCountTask extends CountTask {
     }
 
     @Override
-    protected void executeTask() {
-        // TODO: Nothing to override currently
+    protected void executeTask() throws IOException, TweeterRemoteException {
+        // TODO: Doesn't do anything currently
+        FollowingCountRequest followingCountRequest = new FollowingCountRequest(getAuthToken(), getTargetUser().getAlias());
+        Response followingCountResponse = getServerFacade().getFollowingCount(followingCountRequest, "/getfollowingcount");
     }
 }

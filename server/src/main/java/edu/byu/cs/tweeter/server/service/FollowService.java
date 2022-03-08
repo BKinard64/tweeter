@@ -2,6 +2,8 @@ package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
@@ -29,6 +31,22 @@ public class FollowService {
         }
 
         return getFollowerDAO().getFollowers(request);
+    }
+
+    public Response getFollowingCount(FollowingCountRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
+        }
+
+        return new Response(true);
+    }
+
+    public Response getFollowersCount(FollowersCountRequest request) {
+        if (request.getTargetUserAlias() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
+        }
+
+        return new Response(true);
     }
 
     public Response follow(FollowRequest request) {
