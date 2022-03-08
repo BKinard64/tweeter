@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
@@ -13,6 +14,7 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 
 /**
@@ -133,6 +135,18 @@ public class ServerFacade {
             throws IOException, TweeterRemoteException {
 
         FollowerResponse response = clientCommunicator.doPost(urlPath, request, null, FollowerResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    public Response follow(FollowRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
         if(response.isSuccess()) {
             return response;

@@ -3,8 +3,13 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Bundle;
 import android.os.Handler;
 
+import java.io.IOException;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
+import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
  * Background task that establishes a following relationship between two users.
@@ -23,8 +28,10 @@ public class FollowTask extends AuthenticatedTask {
     }
 
     @Override
-    protected void executeTask() {
-        // TODO: Nothing to override currently
+    protected void executeTask() throws IOException, TweeterRemoteException {
+        // TODO: Doesn't do anything currently
+        FollowRequest followRequest = new FollowRequest(getAuthToken(), followee.getAlias());
+        Response followResponse = getServerFacade().follow(followRequest, "/follow");
     }
 
     @Override
