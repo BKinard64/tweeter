@@ -12,6 +12,7 @@ import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
+import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.request.UserRequest;
@@ -250,6 +251,18 @@ public class ServerFacade {
             throws IOException, TweeterRemoteException {
 
         IsFollowerResponse response = clientCommunicator.doPost(urlPath, request, null, IsFollowerResponse.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    public Response postStatus(StatusRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
         if(response.isSuccess()) {
             return response;
