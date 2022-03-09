@@ -7,7 +7,7 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.CountResponse;
 
 /**
@@ -23,7 +23,7 @@ public class GetFollowersCountTask extends CountTask {
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
         // TODO: Doesn't do anything currently
-        FollowersCountRequest followersCountRequest = new FollowersCountRequest(getAuthToken(), getTargetUser().getAlias());
+        TargetUserRequest followersCountRequest = new TargetUserRequest(getAuthToken(), getTargetUser().getAlias());
         CountResponse followersCountResponse = getServerFacade().getFollowersCount(followersCountRequest, "/getfollowerscount");
 
         setCount(followersCountResponse.getCount());

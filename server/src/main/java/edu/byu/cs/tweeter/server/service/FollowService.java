@@ -2,13 +2,10 @@ package edu.byu.cs.tweeter.server.service;
 
 import java.util.Random;
 
-import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
-import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.CountResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
@@ -38,7 +35,7 @@ public class FollowService {
         return getFollowerDAO().getFollowers(request);
     }
 
-    public CountResponse getFollowingCount(FollowingCountRequest request) {
+    public CountResponse getFollowingCount(TargetUserRequest request) {
         if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
         }
@@ -46,7 +43,7 @@ public class FollowService {
         return new CountResponse(20);
     }
 
-    public CountResponse getFollowersCount(FollowersCountRequest request) {
+    public CountResponse getFollowersCount(TargetUserRequest request) {
         if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
         }
@@ -54,16 +51,16 @@ public class FollowService {
         return new CountResponse(20);
     }
 
-    public Response follow(FollowRequest request) {
-        if (request.getFolloweeAlias() == null) {
+    public Response follow(TargetUserRequest request) {
+        if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
 
         return new Response(true);
     }
 
-    public Response unfollow(UnfollowRequest request) {
-        if (request.getFolloweeAlias() == null) {
+    public Response unfollow(TargetUserRequest request) {
+        if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
 

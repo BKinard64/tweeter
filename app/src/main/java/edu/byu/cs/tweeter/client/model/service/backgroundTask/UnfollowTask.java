@@ -8,7 +8,7 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
@@ -30,7 +30,7 @@ public class UnfollowTask extends AuthenticatedTask {
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
         // TODO: Doesn't do anything currently
-        UnfollowRequest unfollowRequest = new UnfollowRequest(getAuthToken(), followee.getAlias());
+        TargetUserRequest unfollowRequest = new TargetUserRequest(getAuthToken(), followee.getAlias());
         Response unfollowResponse = getServerFacade().unfollow(unfollowRequest, "/unfollow");
     }
 

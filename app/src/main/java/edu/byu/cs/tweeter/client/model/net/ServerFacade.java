@@ -5,18 +5,14 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.request.FeedRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowersCountRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
-import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
-import edu.byu.cs.tweeter.model.net.request.UserRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.CountResponse;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
@@ -159,7 +155,7 @@ public class ServerFacade {
      * @param request contains the alias of the user to get the following count of
      * @return the count
      */
-    public CountResponse getFollowingCount(FollowingCountRequest request, String urlPath)
+    public CountResponse getFollowingCount(TargetUserRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
@@ -177,7 +173,7 @@ public class ServerFacade {
      * @param request contains the alias of the user to get the followers count of
      * @return the count
      */
-    public CountResponse getFollowersCount(FollowersCountRequest request, String urlPath)
+    public CountResponse getFollowersCount(TargetUserRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
@@ -195,7 +191,7 @@ public class ServerFacade {
      * @param request contains the alias of the user being retrieved.
      * @return the user.
      */
-    public UserResponse getUser(UserRequest request, String urlPath)
+    public UserResponse getUser(TargetUserRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         UserResponse response = clientCommunicator.doPost(urlPath, request, null, UserResponse.class);
@@ -213,7 +209,7 @@ public class ServerFacade {
      * @param request contains the alias of the user to follow
      * @return success message
      */
-    public Response follow(FollowRequest request, String urlPath)
+    public Response follow(TargetUserRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
@@ -231,7 +227,7 @@ public class ServerFacade {
      * @param request contains the alias of the user to unfollow
      * @return success message
      */
-    public Response unfollow(UnfollowRequest request, String urlPath)
+    public Response unfollow(TargetUserRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);

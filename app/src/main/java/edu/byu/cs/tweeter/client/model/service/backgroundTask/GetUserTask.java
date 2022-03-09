@@ -8,7 +8,7 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.UserRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.UserResponse;
 
 /**
@@ -42,8 +42,8 @@ public class GetUserTask extends AuthenticatedTask {
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
         // TODO: Get User from database
-        UserRequest userRequest = new UserRequest(getAuthToken(), alias);
-        UserResponse userResponse = getServerFacade().getUser(userRequest, "/getuser");
+        TargetUserRequest getUserRequest = new TargetUserRequest(getAuthToken(), alias);
+        UserResponse userResponse = getServerFacade().getUser(getUserRequest, "/getuser");
 
         user = userResponse.getUser();
     }
