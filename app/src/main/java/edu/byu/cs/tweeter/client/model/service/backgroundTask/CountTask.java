@@ -15,6 +15,10 @@ public abstract class CountTask extends AuthenticatedTask {
      * (This can be any user, not just the currently logged-in user.)
      */
     private User targetUser;
+    /**
+     * The count of the user's followers/following
+     */
+    private int count;
 
     public CountTask(Handler messageHandler, AuthToken authToken, User targetUser) {
         super(messageHandler, authToken);
@@ -25,8 +29,16 @@ public abstract class CountTask extends AuthenticatedTask {
         return targetUser;
     }
 
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
-        msgBundle.putInt(COUNT_KEY, 20);
+        msgBundle.putInt(COUNT_KEY, count);
     }
 }

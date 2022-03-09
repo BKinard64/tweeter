@@ -4,12 +4,13 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
+import edu.byu.cs.tweeter.model.net.response.CountResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.service.FollowService;
 
-public class GetFollowingCountHandler implements RequestHandler<FollowingCountRequest, Response> {
+public class GetFollowingCountHandler implements RequestHandler<FollowingCountRequest, CountResponse> {
     @Override
-    public Response handleRequest(FollowingCountRequest request, Context context) {
+    public CountResponse handleRequest(FollowingCountRequest request, Context context) {
         FollowService service = new FollowService();
         return service.getFollowingCount(request);
     }

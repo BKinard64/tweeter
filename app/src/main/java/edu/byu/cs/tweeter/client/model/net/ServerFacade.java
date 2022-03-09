@@ -18,6 +18,7 @@ import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.request.UserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.CountResponse;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
@@ -156,12 +157,12 @@ public class ServerFacade {
      * Returns the number of users that the user specified in the request is following.
      *
      * @param request contains the alias of the user to get the following count of
-     * @return success message
+     * @return the count
      */
-    public Response getFollowingCount(FollowingCountRequest request, String urlPath)
+    public CountResponse getFollowingCount(FollowingCountRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
-        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+        CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
 
         if(response.isSuccess()) {
             return response;
@@ -174,12 +175,12 @@ public class ServerFacade {
      * Returns the number of users that the user specified in the request is being followed by.
      *
      * @param request contains the alias of the user to get the followers count of
-     * @return success message
+     * @return the count
      */
-    public Response getFollowersCount(FollowersCountRequest request, String urlPath)
+    public CountResponse getFollowersCount(FollowersCountRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
-        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+        CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
 
         if(response.isSuccess()) {
             return response;

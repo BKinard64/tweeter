@@ -9,6 +9,7 @@ import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.response.CountResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
@@ -37,20 +38,20 @@ public class FollowService {
         return getFollowerDAO().getFollowers(request);
     }
 
-    public Response getFollowingCount(FollowingCountRequest request) {
+    public CountResponse getFollowingCount(FollowingCountRequest request) {
         if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
         }
 
-        return new Response(true);
+        return new CountResponse(20);
     }
 
-    public Response getFollowersCount(FollowersCountRequest request) {
+    public CountResponse getFollowersCount(FollowersCountRequest request) {
         if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
         }
 
-        return new Response(true);
+        return new CountResponse(20);
     }
 
     public Response follow(FollowRequest request) {
