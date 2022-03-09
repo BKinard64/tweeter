@@ -2,11 +2,15 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.StoryRequest;
+import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
 /**
@@ -21,8 +25,10 @@ public class GetStoryTask extends PagedTask<Status> {
     }
 
     @Override
-    protected Pair<List<Status>, Boolean> getItems() {
-        Pair<List<Status>, Boolean> pageOfStatus = getFakeData().getPageOfStatus(getLastItem(), getLimit());
-        return pageOfStatus;
+    protected Pair<List<Status>, Boolean> getItems(AuthToken authToken, User targetUser, int limit, Status lastStatus) throws IOException, TweeterRemoteException {
+        StoryRequest storyRequest = new StoryRequest(authToken, targetUser.getAlias(), limit, lastStatus);
+        StoryResponse storyResponse = getServerFacade().getStory(storyRequest, "/getstory");
+
+        return new Pair<>(storyResponse.getStatuses(), storyResponse.getHasMorePages());
     }
 }

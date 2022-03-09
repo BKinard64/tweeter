@@ -3,10 +3,14 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 import android.os.Bundle;
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 
 /**
  * Background task that determines if one user is following another.
@@ -24,6 +28,10 @@ public class IsFollowerTask extends AuthenticatedTask {
      * The alleged followee.
      */
     private User followee;
+    /**
+     * The status of the following relationship
+     */
+    private boolean isFollower;
 
     public IsFollowerTask(AuthToken authToken, User follower, User followee, Handler messageHandler) {
         super(messageHandler, authToken);
@@ -32,12 +40,16 @@ public class IsFollowerTask extends AuthenticatedTask {
     }
 
     @Override
-    protected void executeTask() {
-        // TODO: Nothing to override currently
+    protected void executeTask() throws IOException, TweeterRemoteException {
+        // TODO: Does nothing currently
+        IsFollowerRequest isFollowerRequest = new IsFollowerRequest(getAuthToken(), follower.getAlias(), followee.getAlias());
+        IsFollowerResponse isFollowerResponse = getServerFacade().isFollower(isFollowerRequest, "/isfollower");
+
+        isFollower = isFollowerResponse.isFollower();
     }
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {
-        msgBundle.putBoolean(IS_FOLLOWER_KEY, new Random().nextInt() > 0);
+        msgBundle.putBoolean(IS_FOLLOWER_KEY, isFollower);
     }
 }
