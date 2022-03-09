@@ -3,9 +3,11 @@ package edu.byu.cs.tweeter.server.service;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.UserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -54,6 +56,14 @@ public class UserService {
         } else {
             return new UserResponse(user);
         }
+    }
+
+    public Response logout(LogoutRequest request) {
+        if (request.getAuthToken() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have an auth token");
+        }
+
+        return new Response(true);
     }
 
     public User getDummyUser() {

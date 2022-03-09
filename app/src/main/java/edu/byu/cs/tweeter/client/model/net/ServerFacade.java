@@ -11,6 +11,7 @@ import edu.byu.cs.tweeter.model.net.request.FollowingCountRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.request.StoryRequest;
@@ -259,7 +260,31 @@ public class ServerFacade {
         }
     }
 
+    /**
+     * Post a status to the database
+     *
+     * @param request contains the status to be posted
+     * @return success message
+     */
     public Response postStatus(StatusRequest request, String urlPath)
+            throws IOException, TweeterRemoteException {
+
+        Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
+
+        if(response.isSuccess()) {
+            return response;
+        } else {
+            throw new RuntimeException(response.getMessage());
+        }
+    }
+
+    /**
+     * Log the current user out (removing their AuthToken from the database)
+     *
+     * @param request the AuthToken to remove
+     * @return success message
+     */
+    public Response logout(LogoutRequest request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
