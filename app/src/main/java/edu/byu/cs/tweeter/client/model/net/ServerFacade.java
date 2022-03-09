@@ -2,16 +2,15 @@ package edu.byu.cs.tweeter.client.model.net;
 
 import java.io.IOException;
 
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
-import edu.byu.cs.tweeter.model.net.request.FeedRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
-import edu.byu.cs.tweeter.model.net.request.StoryRequest;
 import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.CountResponse;
@@ -74,7 +73,7 @@ public class ServerFacade {
      *                other information required to satisfy the request.
      * @return the statuses.
      */
-    public FeedResponse getFeed(FeedRequest request, String urlPath)
+    public FeedResponse getFeed(PagedRequest<Status> request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         FeedResponse response = clientCommunicator.doPost(urlPath, request, null, FeedResponse.class);
@@ -95,7 +94,7 @@ public class ServerFacade {
      *                other information required to satisfy the request.
      * @return the statuses.
      */
-    public StoryResponse getStory(StoryRequest request, String urlPath)
+    public StoryResponse getStory(PagedRequest<Status> request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         StoryResponse response = clientCommunicator.doPost(urlPath, request, null, StoryResponse.class);
@@ -116,7 +115,7 @@ public class ServerFacade {
      *                other information required to satisfy the request.
      * @return the followees.
      */
-    public FollowingResponse getFollowees(FollowingRequest request, String urlPath)
+    public FollowingResponse getFollowees(PagedRequest<User> request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         FollowingResponse response = clientCommunicator.doPost(urlPath, request, null, FollowingResponse.class);
@@ -137,7 +136,7 @@ public class ServerFacade {
      *                other information required to satisfy the request.
      * @return the followers.
      */
-    public FollowerResponse getFollowers(FollowerRequest request, String urlPath)
+    public FollowerResponse getFollowers(PagedRequest<User> request, String urlPath)
             throws IOException, TweeterRemoteException {
 
         FollowerResponse response = clientCommunicator.doPost(urlPath, request, null, FollowerResponse.class);

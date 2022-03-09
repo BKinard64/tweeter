@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.FollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -36,10 +36,10 @@ public class FollowerDAO {
      *                other information required to satisfy the request.
      * @return the followers.
      */
-    public FollowerResponse getFollowers(FollowerRequest request) {
+    public FollowerResponse getFollowers(PagedRequest<User> request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
-        assert request.getFolloweeAlias() != null;
+        assert request.getUserAlias() != null;
 
         List<User> allFollowers = getDummyFollowers();
         List<User> responseFollowers = new ArrayList<>(request.getLimit());
@@ -48,7 +48,7 @@ public class FollowerDAO {
 
         if(request.getLimit() > 0) {
             if (allFollowers != null) {
-                int followersIndex = getFollowersStartingIndex(request.getLastFollowerAlias(), allFollowers);
+                int followersIndex = getFollowersStartingIndex(request.getLastItem(), allFollowers);
 
                 for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
                     responseFollowers.add(allFollowers.get(followersIndex));
@@ -66,20 +66,20 @@ public class FollowerDAO {
      * be returned in the current request. This will be the index of the next follower after the
      * specified 'lastFollower'.
      *
-     * @param lastFollowerAlias the alias of the last follower that was returned in the previous
+     * @param lastFollower the alias of the last follower that was returned in the previous
      *                          request or null if there was no previous request.
      * @param allFollowers the generated list of followers from which we are returning paged results.
      * @return the index of the first follower to be returned.
      */
-    private int getFollowersStartingIndex(String lastFollowerAlias, List<User> allFollowers) {
+    private int getFollowersStartingIndex(User lastFollower, List<User> allFollowers) {
 
         int followersIndex = 0;
 
-        if(lastFollowerAlias != null) {
+        if(lastFollower != null) {
             // This is a paged request for something after the first page. Find the first item
             // we should return
             for (int i = 0; i < allFollowers.size(); i++) {
-                if(lastFollowerAlias.equals(allFollowers.get(i).getAlias())) {
+                if(lastFollower.equals(allFollowers.get(i))) {
                     // We found the index of the last item returned last time. Increment to get
                     // to the first one we should return
                     followersIndex = i + 1;
