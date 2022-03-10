@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.StoryRequest;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
@@ -26,9 +26,9 @@ public class GetStoryTask extends PagedTask<Status> {
 
     @Override
     protected Pair<List<Status>, Boolean> getItems(AuthToken authToken, User targetUser, int limit, Status lastStatus) throws IOException, TweeterRemoteException {
-        StoryRequest storyRequest = new StoryRequest(authToken, targetUser.getAlias(), limit, lastStatus);
+        PagedRequest<Status> storyRequest = new PagedRequest<>(authToken, targetUser.getAlias(), limit, lastStatus);
         StoryResponse storyResponse = getServerFacade().getStory(storyRequest, "/getstory");
 
-        return new Pair<>(storyResponse.getStatuses(), storyResponse.getHasMorePages());
+        return new Pair<>(storyResponse.getItems(), storyResponse.getHasMorePages());
     }
 }

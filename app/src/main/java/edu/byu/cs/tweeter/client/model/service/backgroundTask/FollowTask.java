@@ -8,7 +8,7 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.FollowRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
@@ -30,7 +30,7 @@ public class FollowTask extends AuthenticatedTask {
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
         // TODO: Doesn't do anything currently
-        FollowRequest followRequest = new FollowRequest(getAuthToken(), followee.getAlias());
+        TargetUserRequest followRequest = new TargetUserRequest(getAuthToken(), followee.getAlias());
         Response followResponse = getServerFacade().follow(followRequest, "/follow");
     }
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
+import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.response.Response;
 
 /**
@@ -23,7 +23,7 @@ public class LogoutTask extends AuthenticatedTask {
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
         // TODO: Doesn't do anything currently
-        LogoutRequest logoutRequest = new LogoutRequest(getAuthToken());
+        AuthenticatedRequest logoutRequest = new AuthenticatedRequest(getAuthToken());
         Response logoutResponse = getServerFacade().logout(logoutRequest, "/logout");
     }
 

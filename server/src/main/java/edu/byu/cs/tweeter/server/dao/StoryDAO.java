@@ -5,9 +5,7 @@ import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.model.net.request.FeedRequest;
-import edu.byu.cs.tweeter.model.net.request.StoryRequest;
-import edu.byu.cs.tweeter.model.net.response.FeedResponse;
+import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -38,7 +36,7 @@ public class StoryDAO {
      *                other information required to satisfy the request.
      * @return the statuses.
      */
-    public StoryResponse getStory(StoryRequest request) {
+    public StoryResponse getStory(PagedRequest<Status> request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
@@ -50,7 +48,7 @@ public class StoryDAO {
 
         if(request.getLimit() > 0) {
             if (allStatuses != null) {
-                int statusesIndex = getStatusesStartingIndex(request.getLastStatus(), allStatuses);
+                int statusesIndex = getStatusesStartingIndex(request.getLastItem(), allStatuses);
 
                 for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
                     responseStatuses.add(allStatuses.get(statusesIndex));

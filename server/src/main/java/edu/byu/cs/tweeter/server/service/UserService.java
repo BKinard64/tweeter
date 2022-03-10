@@ -2,16 +2,16 @@ package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
-import edu.byu.cs.tweeter.model.net.request.UserRequest;
+import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class UserService {
+public class UserService extends Service {
     public AuthenticationResponse login(LoginRequest request) {
         checkForUsernameAndPassword(request.getUsername(), request.getPassword());
 
@@ -37,18 +37,8 @@ public class UserService {
         return new AuthenticationResponse(user, authToken);
     }
 
-    private void checkForUsernameAndPassword(String username, String password) {
-        if (username == null) {
-            throw new RuntimeException("[Bad Request] Missing a username");
-        } else if (password == null) {
-            throw new RuntimeException("[Bad Request] Missing a password");
-        }
-    }
-
-    public UserResponse getUser(UserRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
-        }
+    public UserResponse getUser(TargetUserRequest request) {
+        verifyTargetUserRequest(request);
 
         User user = getFakeData().findUserByAlias(request.getTargetUserAlias());
         if (user == null) {
@@ -58,12 +48,20 @@ public class UserService {
         }
     }
 
-    public Response logout(LogoutRequest request) {
+    public Response logout(AuthenticatedRequest request) {
         if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have an auth token");
         }
 
         return new Response(true);
+    }
+
+    private void checkForUsernameAndPassword(String username, String password) {
+        if (username == null) {
+            throw new RuntimeException("[Bad Request] Missing a username");
+        } else if (password == null) {
+            throw new RuntimeException("[Bad Request] Missing a password");
+        }
     }
 
     public User getDummyUser() {
