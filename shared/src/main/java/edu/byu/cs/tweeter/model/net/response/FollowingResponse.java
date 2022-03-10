@@ -1,45 +1,11 @@
 package edu.byu.cs.tweeter.model.net.response;
 
 import java.util.List;
-import java.util.Objects;
 
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class FollowingResponse extends PagedResponse {
-    private List<User> followees;
-
-    public FollowingResponse(String message) {
-        super(false, message, false);
-    }
-
-    public FollowingResponse(List<User> followees, boolean hasMorePages) {
-        super(true, hasMorePages);
-        this.followees = followees;
-    }
-
-    public List<User> getFollowees() {
-        return followees;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(followees);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-
-        FollowingResponse that = (FollowingResponse) obj;
-
-        return (Objects.equals(followees, that.followees) &&
-                Objects.equals(this.getMessage(), that.getMessage()) &&
-                this.isSuccess() == that.isSuccess());
+public class FollowingResponse extends PagedResponse<User> {
+    public FollowingResponse(List<User> items, boolean hasMorePages) {
+        super(items, hasMorePages);
     }
 }

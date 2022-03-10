@@ -29,6 +29,6 @@ public class GetStoryTask extends PagedTask<Status> {
         PagedRequest<Status> storyRequest = new PagedRequest<>(authToken, targetUser.getAlias(), limit, lastStatus);
         StoryResponse storyResponse = getServerFacade().getStory(storyRequest, "/getstory");
 
-        return new Pair<>(storyResponse.getStatuses(), storyResponse.getHasMorePages());
+        return new Pair<>(storyResponse.getItems(), storyResponse.getHasMorePages());
     }
 }
