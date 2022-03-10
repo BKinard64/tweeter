@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class UserService {
+public class UserService extends Service {
     public AuthenticationResponse login(LoginRequest request) {
         checkForUsernameAndPassword(request.getUsername(), request.getPassword());
 
@@ -37,18 +37,8 @@ public class UserService {
         return new AuthenticationResponse(user, authToken);
     }
 
-    private void checkForUsernameAndPassword(String username, String password) {
-        if (username == null) {
-            throw new RuntimeException("[Bad Request] Missing a username");
-        } else if (password == null) {
-            throw new RuntimeException("[Bad Request] Missing a password");
-        }
-    }
-
     public UserResponse getUser(TargetUserRequest request) {
-        if (request.getTargetUserAlias() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
-        }
+        verifyTargetUserRequest(request);
 
         User user = getFakeData().findUserByAlias(request.getTargetUserAlias());
         if (user == null) {
@@ -64,6 +54,14 @@ public class UserService {
         }
 
         return new Response(true);
+    }
+
+    private void checkForUsernameAndPassword(String username, String password) {
+        if (username == null) {
+            throw new RuntimeException("[Bad Request] Missing a username");
+        } else if (password == null) {
+            throw new RuntimeException("[Bad Request] Missing a password");
+        }
     }
 
     public User getDummyUser() {
