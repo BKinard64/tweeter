@@ -41,11 +41,7 @@ public class ServerFacade {
     public AuthenticationResponse login(LoginRequest request, String urlPath) throws IOException, TweeterRemoteException {
         AuthenticationResponse response = clientCommunicator.doPost(urlPath, request, null, AuthenticationResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (AuthenticationResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -57,11 +53,7 @@ public class ServerFacade {
     public AuthenticationResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
         AuthenticationResponse response = clientCommunicator.doPost(urlPath, request, null, AuthenticationResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (AuthenticationResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -78,11 +70,7 @@ public class ServerFacade {
 
         FeedResponse response = clientCommunicator.doPost(urlPath, request, null, FeedResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (FeedResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -99,11 +87,7 @@ public class ServerFacade {
 
         StoryResponse response = clientCommunicator.doPost(urlPath, request, null, StoryResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (StoryResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -120,11 +104,7 @@ public class ServerFacade {
 
         FollowingResponse response = clientCommunicator.doPost(urlPath, request, null, FollowingResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (FollowingResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -141,11 +121,7 @@ public class ServerFacade {
 
         FollowerResponse response = clientCommunicator.doPost(urlPath, request, null, FollowerResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (FollowerResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -159,11 +135,7 @@ public class ServerFacade {
 
         CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (CountResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -177,11 +149,7 @@ public class ServerFacade {
 
         CountResponse response = clientCommunicator.doPost(urlPath, request, null, CountResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (CountResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -195,11 +163,7 @@ public class ServerFacade {
 
         UserResponse response = clientCommunicator.doPost(urlPath, request, null, UserResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (UserResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -213,11 +177,7 @@ public class ServerFacade {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return verifyResponseSuccess(response);
     }
 
     /**
@@ -231,11 +191,7 @@ public class ServerFacade {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return verifyResponseSuccess(response);
     }
 
     /**
@@ -249,11 +205,7 @@ public class ServerFacade {
 
         IsFollowerResponse response = clientCommunicator.doPost(urlPath, request, null, IsFollowerResponse.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return (IsFollowerResponse) verifyResponseSuccess(response);
     }
 
     /**
@@ -267,11 +219,7 @@ public class ServerFacade {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
-        if(response.isSuccess()) {
-            return response;
-        } else {
-            throw new RuntimeException(response.getMessage());
-        }
+        return verifyResponseSuccess(response);
     }
 
     /**
@@ -285,6 +233,10 @@ public class ServerFacade {
 
         Response response = clientCommunicator.doPost(urlPath, request, null, Response.class);
 
+        return verifyResponseSuccess(response);
+    }
+
+    private Response verifyResponseSuccess(Response response) {
         if(response.isSuccess()) {
             return response;
         } else {
