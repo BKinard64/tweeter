@@ -52,6 +52,8 @@ public class FollowService extends Service {
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        verifyAuthenticatedRequest(request);
+
         if (request.getFollowerAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
         } else if (request.getFolloweeAlias() == null) {

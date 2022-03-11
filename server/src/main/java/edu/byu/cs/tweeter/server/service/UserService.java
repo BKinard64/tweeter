@@ -49,9 +49,7 @@ public class UserService extends Service {
     }
 
     public Response logout(AuthenticatedRequest request) {
-        if (request.getAuthToken() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have an auth token");
-        }
+        verifyAuthenticatedRequest(request);
 
         return new Response(true);
     }

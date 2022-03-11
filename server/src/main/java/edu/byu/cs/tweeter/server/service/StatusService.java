@@ -23,6 +23,8 @@ public class StatusService extends Service {
     }
 
     public Response postStatus(StatusRequest request) {
+        verifyAuthenticatedRequest(request);
+
         if (request.getStatus() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a status");
         }
