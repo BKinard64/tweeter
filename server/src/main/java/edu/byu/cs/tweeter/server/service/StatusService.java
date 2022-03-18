@@ -6,8 +6,8 @@ import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
-import edu.byu.cs.tweeter.server.dao.FeedDAO;
-import edu.byu.cs.tweeter.server.dao.StoryDAO;
+import edu.byu.cs.tweeter.server.dao.DynamoFeedDAO;
+import edu.byu.cs.tweeter.server.dao.DynamoStoryDAO;
 
 public class StatusService extends Service {
     public FeedResponse getFeed(PagedRequest<Status> request) {
@@ -32,11 +32,11 @@ public class StatusService extends Service {
         return new Response(true);
     }
 
-    public FeedDAO getFeedDAO() {
-        return new FeedDAO();
+    public DynamoFeedDAO getFeedDAO() {
+        return new DynamoFeedDAO();
     }
 
-    public StoryDAO getStoryDAO() {
-        return new StoryDAO();
+    public DynamoStoryDAO getStoryDAO() {
+        return new DynamoStoryDAO();
     }
 }

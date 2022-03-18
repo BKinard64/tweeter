@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.DynamoFollowDAO;
 import edu.byu.cs.tweeter.server.dao.FollowerDAO;
 
 public class FollowService extends Service {
@@ -63,8 +63,8 @@ public class FollowService extends Service {
         return new IsFollowerResponse(new Random().nextInt() > 0);
     }
 
-    public FollowDAO getFollowingDAO() {
-        return new FollowDAO();
+    public DynamoFollowDAO getFollowingDAO() {
+        return new DynamoFollowDAO();
     }
 
     public FollowerDAO getFollowerDAO() {
