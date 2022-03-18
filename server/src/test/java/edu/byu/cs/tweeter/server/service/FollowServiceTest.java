@@ -42,7 +42,7 @@ public class FollowServiceTest {
         Mockito.when(mockDynamoFollowDAO.getFollowees(request)).thenReturn(expectedResponse);
 
         followServiceSpy = Mockito.spy(FollowService.class);
-        Mockito.when(followServiceSpy.getFollowingDAO()).thenReturn(mockDynamoFollowDAO);
+        Mockito.when(followServiceSpy.getFollowDAO()).thenReturn(mockDynamoFollowDAO);
     }
 
     /**

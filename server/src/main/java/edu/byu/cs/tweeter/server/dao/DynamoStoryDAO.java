@@ -12,7 +12,54 @@ import edu.byu.cs.tweeter.util.FakeData;
 /**
  * A DAO for accessing 'story' data from the database.
  */
-public class DynamoStoryDAO {
+public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
+
+    /**
+     * Add a story to the Story Table
+     *
+     * @param status
+     */
+    @Override
+    public void createStory(Status status) {
+
+    }
+
+    /**
+     * Gets the statuses from the database that the user specified in the request has in their story. Uses
+     * information in the request object to limit the number of statuses returned and to return the
+     * next set of statuses after any that were returned in a previous request. The current
+     * implementation returns generated data and doesn't actually access a database.
+     *
+     * @param request contains information about the user whose story is to be returned and any
+     *                other information required to satisfy the request.
+     * @return the statuses.
+     */
+    @Override
+    public StoryResponse getStory(PagedRequest<Status> request) {
+        // TODO: Generates dummy data. Replace with a real implementation.
+        assert request.getLimit() > 0;
+        assert request.getUserAlias() != null;
+
+        List<Status> allStatuses = getDummyStatuses();
+        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
+
+        boolean hasMorePages = false;
+
+        if(request.getLimit() > 0) {
+            if (allStatuses != null) {
+                int statusesIndex = getItemsStartingIndex(request.getLastItem(), allStatuses);
+
+                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
+                    responseStatuses.add(allStatuses.get(statusesIndex));
+                }
+
+                hasMorePages = statusesIndex < allStatuses.size();
+            }
+        }
+
+        return new StoryResponse(responseStatuses, hasMorePages);
+    }
+
     /**
      * Gets the count of statuses from the database that the user specified has in their story. The
      * current implementation uses generated data and doesn't actually access a database.
@@ -27,68 +74,13 @@ public class DynamoStoryDAO {
     }
 
     /**
-     * Gets the statuses from the database that the user specified in the request has in their story. Uses
-     * information in the request object to limit the number of statuses returned and to return the
-     * next set of statuses after any that were returned in a previous request. The current
-     * implementation returns generated data and doesn't actually access a database.
+     * Delete a story from the Story Table
      *
-     * @param request contains information about the user whose story is to be returned and any
-     *                other information required to satisfy the request.
-     * @return the statuses.
+     * @param status
      */
-    public StoryResponse getStory(PagedRequest<Status> request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
-        assert request.getLimit() > 0;
-        assert request.getUserAlias() != null;
+    @Override
+    public void deleteStory(Status status) {
 
-        List<Status> allStatuses = getDummyStatuses();
-        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
-
-        boolean hasMorePages = false;
-
-        if(request.getLimit() > 0) {
-            if (allStatuses != null) {
-                int statusesIndex = getStatusesStartingIndex(request.getLastItem(), allStatuses);
-
-                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
-                    responseStatuses.add(allStatuses.get(statusesIndex));
-                }
-
-                hasMorePages = statusesIndex < allStatuses.size();
-            }
-        }
-
-        return new StoryResponse(responseStatuses, hasMorePages);
-    }
-
-    /**
-     * Determines the index for the first status in the specified 'allStatuses' list that should
-     * be returned in the current request. This will be the index of the next status after the
-     * specified 'lastStatus'.
-     *
-     * @param lastStatus the last status that was returned in the previous
-     *                          request or null if there was no previous request.
-     * @param allStatuses the generated list of statuses from which we are returning paged results.
-     * @return the index of the first status to be returned.
-     */
-    private int getStatusesStartingIndex(Status lastStatus, List<Status> allStatuses) {
-
-        int statusesIndex = 0;
-
-        if(lastStatus != null) {
-            // This is a paged request for something after the first page. Find the first item
-            // we should return
-            for (int i = 0; i < allStatuses.size(); i++) {
-                if(lastStatus.equals(allStatuses.get(i))) {
-                    // We found the index of the last item returned last time. Increment to get
-                    // to the first one we should return
-                    statusesIndex = i + 1;
-                    break;
-                }
-            }
-        }
-
-        return statusesIndex;
     }
 
     /**

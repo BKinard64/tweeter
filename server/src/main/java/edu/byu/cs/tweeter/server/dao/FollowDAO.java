@@ -10,6 +10,8 @@ public interface FollowDAO {
     public void createFollower(User user);
     public FollowingResponse getFollowees(PagedRequest<User> followingRequest);
     public FollowerResponse getFollowers(PagedRequest<User> followerRequest);
+    public Integer getFolloweeCount(User follower);
+    public Integer getFollowerCount(User followee);
     public void deleteFollowee(User user);
     public void deleteFollower(User user);
 }
