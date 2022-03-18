@@ -5,6 +5,22 @@ import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
 
 public abstract class Service {
+    private final DAOFactory daoFactory;
+    private final AuthTokenDAO authTokenDAO;
+
+    public Service(DAOFactory daoFactory) {
+        this.daoFactory = daoFactory;
+        authTokenDAO = daoFactory.getAuthTokenDAO();
+    }
+
+    public DAOFactory getDaoFactory() {
+        return daoFactory;
+    }
+
+    public AuthTokenDAO getAuthTokenDAO() {
+        return authTokenDAO;
+    }
+
     protected void verifyAuthenticatedRequest(AuthenticatedRequest request) {
         if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have an AuthToken");

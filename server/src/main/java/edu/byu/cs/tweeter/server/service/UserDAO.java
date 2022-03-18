@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.service;
 
 import edu.byu.cs.tweeter.model.domain.User;
 

@@ -14,6 +14,10 @@ import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DynamoFollowDAO;
 
 public class FollowService extends Service {
+    public FollowService(DAOFactory daoFactory) {
+        super(daoFactory);
+    }
+
     public FollowingResponse getFollowees(PagedRequest<User> request) {
         verifyPagedRequest(request);
 
@@ -62,7 +66,7 @@ public class FollowService extends Service {
         return new IsFollowerResponse(new Random().nextInt() > 0);
     }
 
-    public DynamoFollowDAO getFollowDAO() {
-        return new DynamoFollowDAO();
+    public FollowDAO getFollowDAO() {
+        return getDaoFactory().getFollowDAO();
     }
 }

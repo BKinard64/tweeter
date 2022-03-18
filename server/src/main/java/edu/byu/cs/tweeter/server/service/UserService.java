@@ -12,6 +12,10 @@ import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService extends Service {
+    public UserService(DAOFactory daoFactory) {
+        super(daoFactory);
+    }
+
     public AuthenticationResponse login(LoginRequest request) {
         checkForUsernameAndPassword(request.getUsername(), request.getPassword());
 

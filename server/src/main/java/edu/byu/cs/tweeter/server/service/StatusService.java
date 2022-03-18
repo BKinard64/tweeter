@@ -10,6 +10,10 @@ import edu.byu.cs.tweeter.server.dao.DynamoFeedDAO;
 import edu.byu.cs.tweeter.server.dao.DynamoStoryDAO;
 
 public class StatusService extends Service {
+    public StatusService(DAOFactory daoFactory) {
+        super(daoFactory);
+    }
+
     public FeedResponse getFeed(PagedRequest<Status> request) {
         verifyPagedRequest(request);
 
@@ -32,11 +36,11 @@ public class StatusService extends Service {
         return new Response(true);
     }
 
-    public DynamoFeedDAO getFeedDAO() {
-        return new DynamoFeedDAO();
+    public FeedDAO getFeedDAO() {
+        return getDaoFactory().getFeedDAO();
     }
 
-    public DynamoStoryDAO getStoryDAO() {
-        return new DynamoStoryDAO();
+    public StoryDAO getStoryDAO() {
+        return getDaoFactory().getStoryDAO();
     }
 }
