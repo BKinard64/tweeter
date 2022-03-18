@@ -2,11 +2,13 @@ package edu.byu.cs.tweeter.server.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.service.FollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -18,10 +20,10 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
     /**
      * Add a followee to the Follows Table
      *
-     * @param user
+     * @param followerAlias
      */
     @Override
-    public void createFollowee(User user) {
+    public void createFollowee(String followerAlias) {
 
     }
 
@@ -108,16 +110,28 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
     }
 
     /**
+     * Determines if the first user specified is following the second user specified
+     *
+     * @param followerAlias
+     * @param followeeAlias
+     * @return response indicating whether a follow relationship exists or not
+     */
+    @Override
+    public IsFollowerResponse queryFollowRelationship(String followerAlias, String followeeAlias) {
+        return new IsFollowerResponse(new Random().nextInt() > 0);
+    }
+
+    /**
      * Gets the count of users from the database that the user specified is following. The
      * current implementation uses generated data and doesn't actually access a database.
      *
-     * @param follower the User whose count of how many following is desired.
+     * @param followerAlias the alias of the User whose count of how many following is desired.
      * @return said count.
      */
     @Override
-    public Integer getFolloweeCount(User follower) {
+    public Integer getFolloweeCount(String followerAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
-        assert follower != null;
+        assert followerAlias != null;
         return getDummyUsers().size();
     }
 
@@ -125,23 +139,23 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
      * Gets the count of users from the database that the user specified is being followed by. The
      * current implementation uses generated data and doesn't actually access a database.
      *
-     * @param followee the User whose count of how many followers is desired.
+     * @param followeeAlias the alias User whose count of how many followers is desired.
      * @return said count.
      */
     @Override
-    public Integer getFollowerCount(User followee) {
+    public Integer getFollowerCount(String followeeAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
-        assert followee != null;
+        assert followeeAlias != null;
         return getDummyUsers().size();
     }
 
     /**
      * Delete a followee from the Follows Table
      *
-     * @param user
+     * @param followerAlias
      */
     @Override
-    public void deleteFollowee(User user) {
+    public void deleteFollowee(String followerAlias) {
 
     }
 

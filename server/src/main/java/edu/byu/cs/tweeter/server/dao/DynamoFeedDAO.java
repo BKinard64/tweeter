@@ -16,12 +16,22 @@ import edu.byu.cs.tweeter.util.FakeData;
 public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
 
     /**
-     * Add a feed to the Feed Table
+     * Create a feed in the Feed Table
      *
      * @param status
      */
     @Override
     public void createFeed(Status status) {
+
+    }
+
+    /**
+     * Add a Status to the Feed Table
+     *
+     * @param status
+     */
+    @Override
+    public void updateFeed(Status status) {
 
     }
 

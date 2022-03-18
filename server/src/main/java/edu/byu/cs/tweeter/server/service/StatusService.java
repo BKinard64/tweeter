@@ -10,6 +10,10 @@ import edu.byu.cs.tweeter.server.dao.DynamoFeedDAO;
 import edu.byu.cs.tweeter.server.dao.DynamoStoryDAO;
 
 public class StatusService extends Service {
+
+    private FeedDAO feedDAO;
+    private StoryDAO storyDAO;
+
     public StatusService(DAOFactory daoFactory) {
         super(daoFactory);
     }
@@ -33,14 +37,23 @@ public class StatusService extends Service {
             throw new RuntimeException("[Bad Request] Request needs to have a status");
         }
 
+        getStoryDAO().updateStory(request.getStatus());
+        // TODO: Figure out how to update other user's feeds when current user posts
+        getFeedDAO().updateFeed(request.getStatus());
         return new Response(true);
     }
 
     public FeedDAO getFeedDAO() {
-        return getDaoFactory().getFeedDAO();
+        if (feedDAO == null) {
+            feedDAO = getDaoFactory().getFeedDAO();
+        }
+        return feedDAO;
     }
 
     public StoryDAO getStoryDAO() {
-        return getDaoFactory().getStoryDAO();
+        if (storyDAO == null) {
+            storyDAO = getDaoFactory().getStoryDAO();
+        }
+        return storyDAO;
     }
 }

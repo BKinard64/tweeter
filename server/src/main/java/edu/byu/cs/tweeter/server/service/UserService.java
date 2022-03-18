@@ -12,6 +12,9 @@ import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService extends Service {
+
+    private UserDAO userDAO;
+
     public UserService(DAOFactory daoFactory) {
         super(daoFactory);
     }
@@ -20,8 +23,11 @@ public class UserService extends Service {
         checkForUsernameAndPassword(request.getUsername(), request.getPassword());
 
         // TODO: Generates dummy data. Replace with real implementation.
-        User user = getDummyUser();
+        User user = getUserDAO().getUser(request.getUsername());
+        // TODO: confirm password
+
         AuthToken authToken = getDummyAuthToken();
+        getAuthTokenDAO().createAuthToken(authToken);
         return new AuthenticationResponse(user, authToken);
     }
 
@@ -37,6 +43,8 @@ public class UserService extends Service {
 
         // TODO: Generates dummy data. Replace with real implementation.
         User user = getDummyUser();
+        getUserDAO().createUser(user);
+
         AuthToken authToken = getDummyAuthToken();
         return new AuthenticationResponse(user, authToken);
     }
@@ -44,6 +52,7 @@ public class UserService extends Service {
     public UserResponse getUser(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
+        // TODO: call getUserDAO().getUser(request.getTargetUserAlias());
         User user = getFakeData().findUserByAlias(request.getTargetUserAlias());
         if (user == null) {
             throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
@@ -55,6 +64,7 @@ public class UserService extends Service {
     public Response logout(AuthenticatedRequest request) {
         verifyAuthenticatedRequest(request);
 
+        getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
         return new Response(true);
     }
 
@@ -76,5 +86,12 @@ public class UserService extends Service {
 
     public FakeData getFakeData() {
         return new FakeData();
+    }
+
+    public UserDAO getUserDAO() {
+        if (userDAO == null) {
+            userDAO = getDaoFactory().getUserDAO();
+        }
+        return  userDAO;
     }
 }

@@ -6,6 +6,7 @@ import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 
 public interface StoryDAO {
     public void createStory(Status status);
+    public void updateStory(Status status);
     public StoryResponse getStory(PagedRequest<Status> storyRequest);
     public void deleteStory(Status status);
 }

@@ -16,12 +16,22 @@ import edu.byu.cs.tweeter.util.FakeData;
 public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
 
     /**
-     * Add a story to the Story Table
+     * Create a story in the Story Table
      *
      * @param status
      */
     @Override
     public void createStory(Status status) {
+
+    }
+
+    /**
+     * Add a Status to the Story Table
+     *
+     * @param status
+     */
+    @Override
+    public void updateStory(Status status) {
 
     }
 

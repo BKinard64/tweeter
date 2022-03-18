@@ -1,7 +1,5 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.Random;
-
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
@@ -11,9 +9,11 @@ import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
-import edu.byu.cs.tweeter.server.dao.DynamoFollowDAO;
 
 public class FollowService extends Service {
+
+    private FollowDAO followDAO;
+
     public FollowService(DAOFactory daoFactory) {
         super(daoFactory);
     }
@@ -33,24 +33,30 @@ public class FollowService extends Service {
     public CountResponse getFollowingCount(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
-        return new CountResponse(20);
+        int count = getFollowDAO().getFolloweeCount(request.getTargetUserAlias());
+        return new CountResponse(count);
     }
 
     public CountResponse getFollowersCount(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
-        return new CountResponse(20);
+        int count = getFollowDAO().getFollowerCount(request.getTargetUserAlias());
+        return new CountResponse(count);
     }
 
     public Response follow(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
+        getFollowDAO().createFollowee(request.getTargetUserAlias());
+        // TODO: Figure out how to update other user's followers when current user follows
         return new Response(true);
     }
 
     public Response unfollow(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
+        getFollowDAO().deleteFollowee(request.getTargetUserAlias());
+        // TODO: Figure out how to update other user's followers when current user unfollows
         return new Response(true);
     }
 
@@ -63,10 +69,13 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
         }
 
-        return new IsFollowerResponse(new Random().nextInt() > 0);
+        return getFollowDAO().queryFollowRelationship(request.getFollowerAlias(), request.getFolloweeAlias());
     }
 
     public FollowDAO getFollowDAO() {
-        return getDaoFactory().getFollowDAO();
+        if (followDAO == null) {
+            followDAO = getDaoFactory().getFollowDAO();
+        }
+        return followDAO;
     }
 }
