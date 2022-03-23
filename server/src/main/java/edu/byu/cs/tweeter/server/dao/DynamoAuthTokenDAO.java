@@ -4,7 +4,9 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 
 import java.util.Date;
 
@@ -37,7 +39,13 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
     }
 
     @Override
-    public void deleteAuthToken(AuthToken authToken) {
-
+    public void deleteAuthToken(AuthToken authToken) throws DataAccessException {
+        DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
+                .withPrimaryKey(new PrimaryKey("token_value", authToken.getToken()));
+        try {
+            authTokenTable.deleteItem(deleteItemSpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 }

@@ -73,7 +73,12 @@ public class UserService extends Service {
     public Response logout(AuthenticatedRequest request) {
         verifyAuthenticatedRequest(request);
 
-        getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
+        try {
+            getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to delete AuthToken from database\n"
+                                        + e.getMessage());
+        }
         return new Response(true);
     }
 
