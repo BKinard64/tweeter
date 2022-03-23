@@ -61,12 +61,12 @@ public class UserService extends Service {
     public UserResponse getUser(TargetUserRequest request) {
         verifyTargetUserRequest(request);
 
-        // TODO: call getUserDAO().getUser(request.getTargetUserAlias());
-        User user = getFakeData().findUserByAlias(request.getTargetUserAlias());
-        if (user == null) {
-            throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
-        } else {
+        try {
+            User user = getUserDAO().getUser(request.getTargetUserAlias());
             return new UserResponse(user);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
         }
     }
 
