@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -34,21 +33,9 @@ public class UserService extends Service {
     public AuthenticationResponse login(LoginRequest request) {
         checkForUsernameAndPassword(request.getUsername(), request.getPassword());
 
-        // TODO: Generates dummy data. Replace with real implementation.
-        User user = null;
-        try {
-            user = getUserDAO().getUser(request.getUsername());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
-        // TODO: confirm password
+        User user = validateUser(request);
+        AuthToken authToken = createAuthToken(request);
 
-        AuthToken authToken = getDummyAuthToken();
-        try {
-            getAuthTokenDAO().createAuthToken(authToken, request.getUsername());
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-        }
         return new AuthenticationResponse(user, authToken);
     }
 
@@ -98,6 +85,19 @@ public class UserService extends Service {
         }
     }
 
+    private User validateUser(LoginRequest request) {
+        try {
+            User user = getUserDAO().getUser(request.getUsername(), request.getPassword());
+            return user;
+        } catch (DataAccessException e) {
+            if (e.getMessage().equals("Invalid password")) {
+                throw new RuntimeException("[Bad Request] Password is invalid.");
+            } else {
+                throw new RuntimeException("[Bad Request] User cannot be found.");
+            }
+        }
+    }
+
     private void validateUniqueUsername(RegisterRequest request) {
         User user = null;
         try {
@@ -121,7 +121,7 @@ public class UserService extends Service {
         return user;
     }
 
-    private AuthToken createAuthToken(RegisterRequest request) {
+    private AuthToken createAuthToken(LoginRequest request) {
         AuthToken authToken = new AuthToken(UUID.randomUUID().toString());
         try {
             getAuthTokenDAO().createAuthToken(authToken, request.getUsername());

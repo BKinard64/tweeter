@@ -7,13 +7,12 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 
+import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.service.UserDAO;
@@ -49,6 +48,25 @@ public class DynamoUserDAO implements UserDAO {
         GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", username);
         try {
             Item item = userTable.getItem(spec);
+            String firstName = item.getString("first_name");
+            String lastName = item.getString("last_name");
+            String imageUrlString = item.getString("image_url");
+            return new User(firstName, lastName, username, imageUrlString);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public User getUser(String username, String password) throws DataAccessException {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", username);
+        try {
+            Item item = userTable.getItem(spec);
+            String salt = item.getString("salt");
+            String securePassword = getSecurePassword(password, salt);
+            if (!securePassword.equals(item.getString("password"))) {
+                throw new Exception("Invalid password");
+            }
             String firstName = item.getString("first_name");
             String lastName = item.getString("last_name");
             String imageUrlString = item.getString("image_url");
