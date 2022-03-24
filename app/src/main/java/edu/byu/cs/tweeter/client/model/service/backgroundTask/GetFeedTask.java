@@ -29,6 +29,8 @@ public class GetFeedTask extends PagedTask<Status> {
         PagedRequest<Status> feedRequest = new PagedRequest<>(authToken, targetUser.getAlias(), limit, lastStatus);
         FeedResponse feedResponse = getServerFacade().getFeed(feedRequest, "/getfeed");
 
+        setResponse(feedResponse);
+
         return new Pair<>(feedResponse.getItems(), feedResponse.getHasMorePages());
     }
 }

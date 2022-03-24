@@ -26,81 +26,102 @@ public class FollowService extends Service {
     }
 
     public FollowingResponse getFollowees(PagedRequest<User> request) {
-        verifyPagedRequest(request);
+        boolean sessionActive = verifyPagedRequest(request);
+        if (sessionActive) {
+            Pair<List<String>, Boolean> pair = queryFollowsTable(request);
+            List<String> followeeAliases = pair.getFirst();
+            boolean hasMorePages = pair.getSecond();
 
-        Pair<List<String>, Boolean> pair = queryFollowsTable(request);
-        List<String> followeeAliases = pair.getFirst();
-        boolean hasMorePages = pair.getSecond();
+            List<User> followees = getUserProfiles(followeeAliases, request.getLimit());
 
-        List<User> followees = getUserProfiles(followeeAliases, request.getLimit());
-
-        return new FollowingResponse(followees, hasMorePages);
+            return new FollowingResponse(followees, hasMorePages);
+        } else {
+            return new FollowingResponse("User Session expired. Returning to Login Screen.");
+        }
     }
 
     public FollowerResponse getFollowers(PagedRequest<User> request) {
-        verifyPagedRequest(request);
+        boolean sessionActive = verifyPagedRequest(request);
+        if (sessionActive) {
+            Pair<List<String>, Boolean> pair = queryFollowsIndex(request);
+            List<String> followerAliases = pair.getFirst();
+            boolean hasMorePages = pair.getSecond();
 
-        Pair<List<String>, Boolean> pair = queryFollowsIndex(request);
-        List<String> followerAliases = pair.getFirst();
-        boolean hasMorePages = pair.getSecond();
+            List<User> followers = getUserProfiles(followerAliases, request.getLimit());
 
-        List<User> followers = getUserProfiles(followerAliases, request.getLimit());
-
-        return new FollowerResponse(followers, hasMorePages);
+            return new FollowerResponse(followers, hasMorePages);
+        } else {
+            return new FollowerResponse("User Session expired. Returning to Login Screen.");
+        }
     }
 
     public CountResponse getFollowingCount(TargetUserRequest request) {
-        verifyTargetUserRequest(request);
-
-        try {
-            int count = getUserDAO().getFolloweeCount(request.getTargetUserAlias());
-            return new CountResponse(count);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unable to get following count");
+        boolean sessionActive = verifyTargetUserRequest(request);
+        if (sessionActive) {
+            try {
+                int count = getUserDAO().getFolloweeCount(request.getTargetUserAlias());
+                return new CountResponse(count);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to get following count");
+            }
+        } else {
+            return new CountResponse("User Session expired. Returning to Login Screen.");
         }
     }
 
     public CountResponse getFollowersCount(TargetUserRequest request) {
-        verifyTargetUserRequest(request);
-
-        try {
-            int count = getUserDAO().getFollowerCount(request.getTargetUserAlias());
-            return new CountResponse(count);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unable to get followers count");
+        boolean sessionActive = verifyTargetUserRequest(request);
+        if (sessionActive) {
+            try {
+                int count = getUserDAO().getFollowerCount(request.getTargetUserAlias());
+                return new CountResponse(count);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to get followers count");
+            }
+        } else {
+            return new CountResponse("User Session expired. Returning to Login Screen.");
         }
     }
 
     public Response follow(TargetUserRequest request) {
-        verifyTargetUserRequest(request);
+        boolean sessionActive = verifyTargetUserRequest(request);
+        if (sessionActive) {
+            addFollowee(request);
 
-        addFollowee(request);
-
-        return new Response(true);
+            return new Response(true);
+        } else {
+            return new Response(false, "User Session expired. Returning to Login Screen.");
+        }
     }
 
     public Response unfollow(TargetUserRequest request) {
-        verifyTargetUserRequest(request);
+        boolean sessionActive = verifyTargetUserRequest(request);
+        if (sessionActive) {
+            removeFollowee(request);
 
-        removeFollowee(request);
-
-        return new Response(true);
+            return new Response(true);
+        } else {
+            return new Response(false, "User Session expired. Returning to Login Screen.");
+        }
     }
 
     public IsFollowerResponse isFollower(IsFollowerRequest request) {
-        verifyAuthenticatedRequest(request);
+        boolean sessionActive = verifyAuthenticatedRequest(request);
+        if (sessionActive) {
+            if (request.getFollowerAlias() == null) {
+                throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
+            } else if (request.getFolloweeAlias() == null) {
+                throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
+            }
 
-        if (request.getFollowerAlias() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
-        } else if (request.getFolloweeAlias() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
-        }
-
-        try {
-            boolean isFollower = getFollowDAO().queryFollowRelationship(request.getFollowerAlias(), request.getFolloweeAlias());
-            return new IsFollowerResponse(isFollower);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Could not determine following relationship");
+            try {
+                boolean isFollower = getFollowDAO().queryFollowRelationship(request.getFollowerAlias(), request.getFolloweeAlias());
+                return new IsFollowerResponse(isFollower);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Could not determine following relationship");
+            }
+        } else {
+            return new IsFollowerResponse("User Session expired. Returning to Login Screen.");
         }
     }
 

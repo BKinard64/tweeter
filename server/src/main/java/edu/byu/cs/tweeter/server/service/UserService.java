@@ -59,27 +59,33 @@ public class UserService extends Service {
     }
 
     public UserResponse getUser(TargetUserRequest request) {
-        verifyTargetUserRequest(request);
-
-        try {
-            User user = getUserDAO().getUser(request.getTargetUserAlias());
-            return new UserResponse(user);
-        } catch (DataAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
+        boolean sessionActive = verifyTargetUserRequest(request);
+        if (sessionActive) {
+            try {
+                User user = getUserDAO().getUser(request.getTargetUserAlias());
+                return new UserResponse(user);
+            } catch (DataAccessException e) {
+                e.printStackTrace();
+                throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
+            }
+        } else {
+            return new UserResponse("User Session expired. Returning to Login Screen.");
         }
     }
 
     public Response logout(AuthenticatedRequest request) {
-        verifyAuthenticatedRequest(request);
-
-        try {
-            getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unable to delete AuthToken from database\n"
-                                        + e.getMessage());
+        boolean sessionActive = verifyAuthenticatedRequest(request);
+        if (sessionActive) {
+            try {
+                getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to delete AuthToken from database\n"
+                        + e.getMessage());
+            }
+            return new Response(true);
+        } else {
+            return new Response(false, "User Session expired. Returning to Login Screen.");
         }
-        return new Response(true);
     }
 
     private void checkForUsernameAndPassword(String username, String password) {
@@ -154,18 +160,6 @@ public class UserService extends Service {
         s3.putObject(putObjectRequest);
 
         return s3.getUrl("bk-byu-cs-340", alias.substring(1) + ".png").toString();
-    }
-
-    public User getDummyUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    public AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
-    }
-
-    public FakeData getFakeData() {
-        return new FakeData();
     }
 
     public UserDAO getUserDAO() {

@@ -43,6 +43,8 @@ public class RegisterTask extends AuthenticateTask {
         RegisterRequest registerRequest = new RegisterRequest(firstName, lastName, username, password, image);
         AuthenticationResponse registerResponse = getServerFacade().register(registerRequest, "/register");
 
+        setResponse(registerResponse);
+
         return createUserAuthTokenPair(registerResponse);
     }
 }

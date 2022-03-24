@@ -28,6 +28,8 @@ public class GetFollowersTask extends PagedTask<User> {
         PagedRequest<User> followerRequest = new PagedRequest<>(authToken, targetUser.getAlias(), limit, lastFollower);
         FollowerResponse followerResponse = getServerFacade().getFollowers(followerRequest, "/getfollowers");
 
+        setResponse(followerResponse);
+
         return new Pair<>(followerResponse.getItems(), followerResponse.getHasMorePages());
     }
 }

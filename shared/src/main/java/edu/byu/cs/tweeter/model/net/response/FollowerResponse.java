@@ -8,4 +8,7 @@ public class FollowerResponse extends PagedResponse<User> {
     public FollowerResponse(List<User> items, boolean hasMorePages) {
         super(items, hasMorePages);
     }
+    public FollowerResponse(String message) {
+        super(false, message, null, false);
+    }
 }

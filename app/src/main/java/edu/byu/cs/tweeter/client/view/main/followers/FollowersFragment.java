@@ -25,8 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.client.R;
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.presenter.FollowersPresenter;
 import edu.byu.cs.tweeter.client.presenter.view.PagedView;
+import edu.byu.cs.tweeter.client.view.login.LoginActivity;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -91,6 +93,17 @@ public class FollowersFragment extends Fragment implements PagedView<User> {
     @Override
     public void displayMessage(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void logoutUser() {
+        //Revert to login screen.
+        Intent intent = new Intent(getContext(), LoginActivity.class);
+        //Clear everything so that the main activity is recreated with the login page.
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //Clear user data (cached data).
+        Cache.getInstance().clearCache();
+        startActivity(intent);
     }
 
     @Override

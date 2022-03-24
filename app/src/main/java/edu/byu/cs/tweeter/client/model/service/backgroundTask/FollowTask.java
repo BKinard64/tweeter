@@ -29,13 +29,11 @@ public class FollowTask extends AuthenticatedTask {
 
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
-        // TODO: Doesn't do anything currently
         TargetUserRequest followRequest = new TargetUserRequest(getAuthToken(), followee.getAlias());
         Response followResponse = getServerFacade().follow(followRequest, "/follow");
+        setResponse(followResponse);
     }
 
     @Override
-    protected void loadSuccessBundle(Bundle msgBundle) {
-        // TODO: Nothing to override currently
-    }
+    protected void loadSuccessBundle(Bundle msgBundle) {}
 }

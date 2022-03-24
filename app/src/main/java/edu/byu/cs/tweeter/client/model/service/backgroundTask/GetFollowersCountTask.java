@@ -26,6 +26,8 @@ public class GetFollowersCountTask extends CountTask {
         TargetUserRequest followersCountRequest = new TargetUserRequest(getAuthToken(), getTargetUser().getAlias());
         CountResponse followersCountResponse = getServerFacade().getFollowersCount(followersCountRequest, "/getfollowerscount");
 
+        setResponse(followersCountResponse);
+
         setCount(followersCountResponse.getCount());
     }
 }

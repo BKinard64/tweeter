@@ -8,4 +8,7 @@ public class FeedResponse extends PagedResponse<Status> {
     public FeedResponse(List<Status> items, boolean hasMorePages) {
         super(items, hasMorePages);
     }
+    public FeedResponse(String message) {
+        super(false, message, null, false);
+    }
 }

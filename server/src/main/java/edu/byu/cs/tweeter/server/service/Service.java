@@ -1,8 +1,13 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.TargetUserRequest;
+import edu.byu.cs.tweeter.server.dao.DataAccessException;
 
 public abstract class Service {
     private final DAOFactory daoFactory;
@@ -21,29 +26,61 @@ public abstract class Service {
         return authTokenDAO;
     }
 
-    protected void verifyAuthenticatedRequest(AuthenticatedRequest request) {
+    protected boolean verifyAuthenticatedRequest(AuthenticatedRequest request) {
         if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have an AuthToken");
         }
 
-        // TODO: Once DynamoDB is set up, verify it is a VALID AuthToken
+        AuthToken authToken;
+        try {
+            authToken = getAuthTokenDAO().getAuthToken(request.getAuthToken().getToken());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Bad Request] Invalid AuthToken");
+        }
+
+        if (isAuthTokenExpired(authToken)) {
+            try {
+                getAuthTokenDAO().deleteExpiredAuthTokens();
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Failed to delete expired AuthTokens");
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
-    protected void verifyPagedRequest(PagedRequest request) {
-        verifyAuthenticatedRequest(request);
+    private boolean isAuthTokenExpired(AuthToken authToken) {
+        long FOUR_HOUR_THRESHOLD = 15000; // TODO: FIX-ME 14400000
 
+        SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+        long authTime;
+        try {
+            authTime = format.parse(authToken.getDatetime()).getTime();
+        } catch (Exception e) {
+            throw new RuntimeException("[Server Error] Unable to parse date/time");
+        }
+        long curTime = new Date().getTime();
+
+        return Math.abs(curTime - authTime) >= FOUR_HOUR_THRESHOLD;
+    }
+
+    protected boolean verifyPagedRequest(PagedRequest request) {
         if (request.getUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a user alias");
         } else if (request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
+
+        return verifyAuthenticatedRequest(request);
     }
 
-    protected void verifyTargetUserRequest(TargetUserRequest request) {
-        verifyAuthenticatedRequest(request);
-
+    protected boolean verifyTargetUserRequest(TargetUserRequest request) {
         if (request.getTargetUserAlias() == null) {
             throw new RuntimeException("[Bad Request] Request needs to have a target user alias");
         }
+
+        return verifyAuthenticatedRequest(request);
     }
 }

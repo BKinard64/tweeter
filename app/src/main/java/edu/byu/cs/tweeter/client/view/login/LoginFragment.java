@@ -82,6 +82,9 @@ public class LoginFragment extends Fragment implements AuthenticationView {
     }
 
     @Override
+    public void logoutUser() {}
+
+    @Override
     public void authenticationSuccessful(User user) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, user);

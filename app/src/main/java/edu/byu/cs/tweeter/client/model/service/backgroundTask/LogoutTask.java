@@ -22,13 +22,12 @@ public class LogoutTask extends AuthenticatedTask {
 
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
-        // TODO: Doesn't do anything currently
         AuthenticatedRequest logoutRequest = new AuthenticatedRequest(getAuthToken());
         Response logoutResponse = getServerFacade().logout(logoutRequest, "/logout");
+
+        setResponse(logoutResponse);
     }
 
     @Override
-    protected void loadSuccessBundle(Bundle msgBundle) {
-        // TODO: Nothing to override currently
-    }
+    protected void loadSuccessBundle(Bundle msgBundle) {}
 }

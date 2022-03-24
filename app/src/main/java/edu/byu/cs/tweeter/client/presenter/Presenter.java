@@ -26,6 +26,7 @@ public class Presenter {
         @Override
         public void handleFailure(String message) {
             view.displayMessage(getMessagePrefix() + ": " + message);
+            getView().logoutUser();
         }
 
         @Override

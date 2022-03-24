@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
@@ -25,6 +26,7 @@ public abstract class BackgroundTask implements Runnable {
      */
     private Handler messageHandler;
     private ServerFacade serverFacade;
+    private Response response;
 
     public BackgroundTask(Handler messageHandler) {
         this.messageHandler = messageHandler;
@@ -35,11 +37,19 @@ public abstract class BackgroundTask implements Runnable {
         return serverFacade;
     }
 
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
     @Override
     public final void run() {
         try {
             executeTask();
-            sendSuccessMessage();
+            if (response.isSuccess()) {
+                sendSuccessMessage();
+            } else {
+                sendFailedMessage(response.getMessage());
+            }
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             sendExceptionMessage(ex);

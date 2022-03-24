@@ -8,6 +8,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
+import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
@@ -26,66 +27,75 @@ public class StatusService extends Service {
     }
 
     public FeedResponse getFeed(PagedRequest<Status> request) {
-        verifyPagedRequest(request);
+        boolean sessionActive = verifyPagedRequest(request);
+        if (sessionActive) {
+            Triple<List<String>, List<Status>, Boolean> triple;
+            try {
+                triple = getFeedDAO().getFeed(request);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to get User's feed");
+            }
+            List<String> posterAliases = triple.getFirst();
+            List<Status> feedPage = triple.getSecond();
+            boolean hasMorePages = triple.getThird();
 
-        Triple<List<String>, List<Status>, Boolean> triple;
-        try {
-            triple = getFeedDAO().getFeed(request);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unable to get User's feed");
+            addUserInfo(posterAliases, feedPage);
+            parsePost(feedPage);
+
+            return new FeedResponse(feedPage, hasMorePages);
+        } else {
+            return new FeedResponse("User Session expired. Returning to Login Screen.");
         }
-        List<String> posterAliases = triple.getFirst();
-        List<Status> feedPage = triple.getSecond();
-        boolean hasMorePages = triple.getThird();
-
-        addUserInfo(posterAliases, feedPage);
-        parsePost(feedPage);
-
-        return new FeedResponse(feedPage, hasMorePages);
     }
 
     public StoryResponse getStory(PagedRequest<Status> request) {
-        verifyPagedRequest(request);
+        boolean sessionActive = verifyPagedRequest(request);
+        if (sessionActive) {
+            User targetUser = getTargetUser(request.getUserAlias());
 
-        User targetUser = getTargetUser(request.getUserAlias());
+            Pair<List<Status>, Boolean> pair = null;
+            try {
+                pair = getStoryDAO().getStory(request, targetUser);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to get User's story");
+            }
+            List<Status> feedPage = pair.getFirst();
+            boolean hasMorePages = pair.getSecond();
 
-        Pair<List<Status>, Boolean> pair = null;
-        try {
-            pair = getStoryDAO().getStory(request, targetUser);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unalbe to get User's story");
+            parsePost(feedPage);
+
+            return new StoryResponse(feedPage, hasMorePages);
+        } else {
+            return new StoryResponse("User Session expired. Returning to Login Screen.");
         }
-        List<Status> feedPage = pair.getFirst();
-        boolean hasMorePages = pair.getSecond();
-
-        parsePost(feedPage);
-
-        return new StoryResponse(feedPage, hasMorePages);
     }
 
     public Response postStatus(StatusRequest request) {
-        verifyAuthenticatedRequest(request);
-
-        if (request.getStatus() == null) {
-            throw new RuntimeException("[Bad Request] Request needs to have a status");
-        }
-
-        try {
-            getStoryDAO().addStatus(request.getStatus());
-        } catch (DataAccessException e) {
-            throw new RuntimeException("[Server Error] Unable to post status to user's story");
-        }
-
-        List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
-        for (String followerAlias : followerAliases) {
-            try {
-                getFeedDAO().addStatus(followerAlias, request.getStatus());
-            } catch (DataAccessException e) {
-                throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
+        boolean sessionActive = verifyAuthenticatedRequest(request);
+        if (sessionActive) {
+            if (request.getStatus() == null) {
+                throw new RuntimeException("[Bad Request] Request needs to have a status");
             }
-        }
 
-        return new Response(true);
+            try {
+                getStoryDAO().addStatus(request.getStatus());
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to post status to user's story");
+            }
+
+            List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
+            for (String followerAlias : followerAliases) {
+                try {
+                    getFeedDAO().addStatus(followerAlias, request.getStatus());
+                } catch (DataAccessException e) {
+                    throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
+                }
+            }
+
+            return new Response(true);
+        } else {
+            return new Response(false, "User Session expired. Returning to Login Screen.");
+        }
     }
 
     private void addUserInfo(List<String> posterAliases, List<Status> feedPage) {

@@ -239,6 +239,8 @@ public class ServerFacade {
     private Response verifyResponseSuccess(Response response) {
         if(response.isSuccess()) {
             return response;
+        } else if (response.getMessage().equals("User Session expired. Returning to Login Screen.")){
+            return response;
         } else {
             throw new RuntimeException(response.getMessage());
         }
