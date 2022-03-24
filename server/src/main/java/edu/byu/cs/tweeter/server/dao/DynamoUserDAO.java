@@ -6,6 +6,9 @@ import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
@@ -37,7 +40,9 @@ public class DynamoUserDAO implements UserDAO {
                                 .withString("first_name", user.getFirstName())
                                 .withString("last_name", user.getLastName())
                                 .withString("image_url", user.getImageUrl())
-                                .withString("salt", salt));
+                                .withString("salt", salt)
+                                .withNumber("follower_count", 0)
+                                .withNumber("following_count", 0));
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
@@ -71,6 +76,54 @@ public class DynamoUserDAO implements UserDAO {
             String lastName = item.getString("last_name");
             String imageUrlString = item.getString("image_url");
             return new User(firstName, lastName, username, imageUrlString);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public void updateFollowersCount(String username, int updateVal) throws DataAccessException {
+        UpdateItemSpec spec = new UpdateItemSpec().withPrimaryKey("alias", username)
+                .withUpdateExpression("set follower_count = follower_count + :val")
+                .withValueMap(new ValueMap().withNumber(":val", updateVal))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+        try {
+            userTable.updateItem(spec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public void updateFollowingCount(String username, int updateVal) throws DataAccessException {
+        UpdateItemSpec spec = new UpdateItemSpec().withPrimaryKey("alias", username)
+                .withUpdateExpression("set following_count = following_count + :val")
+                .withValueMap(new ValueMap().withNumber(":val", updateVal))
+                .withReturnValues(ReturnValue.UPDATED_NEW);
+        try {
+            userTable.updateItem(spec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public Integer getFolloweeCount(String followerAlias) throws DataAccessException {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", followerAlias);
+        try {
+            Item item = userTable.getItem(spec);
+            return item.getInt("following_count");
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public Integer getFollowerCount(String followeeAlias) throws DataAccessException {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("alias", followeeAlias);
+        try {
+            Item item = userTable.getItem(spec);
+            return item.getInt("follower_count");
         } catch (Exception e) {
             throw new DataAccessException(e);
         }

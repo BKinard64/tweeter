@@ -1,14 +1,20 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
-import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.service.FollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
@@ -16,15 +22,29 @@ import edu.byu.cs.tweeter.util.FakeData;
  * A DAO for accessing "follow relationship" data from the database.
  */
 public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
+    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder
+            .standard()
+            .withRegion("us-west-1")
+            .build();
+    private final DynamoDB dynamoDB = new DynamoDB(client);
+
+    private final Table followsTable = dynamoDB.getTable("follows");
 
     /**
      * Add a followee to the Follows Table
-     *
-     * @param followerAlias
+     * @param curUser
+     * @param followee
      */
     @Override
-    public void createFollowee(String followerAlias) {
-
+    public void createFollowee(User curUser, User followee) throws DataAccessException {
+        try {
+            followsTable.putItem(new Item()
+                                .withPrimaryKey("follower_handle", curUser.getAlias(), "followee_handle", followee.getAlias())
+                                .withString("follower_name", curUser.getName())
+                                .withString("followee_name", followee.getName()));
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**
@@ -111,52 +131,38 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
 
     /**
      * Determines if the first user specified is following the second user specified
-     *
-     * @param followerAlias
+     *  @param followerAlias
      * @param followeeAlias
-     * @return response indicating whether a follow relationship exists or not
-     */
+     * @return*/
     @Override
-    public IsFollowerResponse queryFollowRelationship(String followerAlias, String followeeAlias) {
-        return new IsFollowerResponse(new Random().nextInt() > 0);
-    }
-
-    /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param followerAlias the alias of the User whose count of how many following is desired.
-     * @return said count.
-     */
-    @Override
-    public Integer getFolloweeCount(String followerAlias) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert followerAlias != null;
-        return getDummyUsers().size();
-    }
-
-    /**
-     * Gets the count of users from the database that the user specified is being followed by. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param followeeAlias the alias User whose count of how many followers is desired.
-     * @return said count.
-     */
-    @Override
-    public Integer getFollowerCount(String followeeAlias) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert followeeAlias != null;
-        return getDummyUsers().size();
+    public boolean queryFollowRelationship(String followerAlias, String followeeAlias) throws DataAccessException {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey("follower_handle", followerAlias, "followee_handle", followeeAlias);
+        try {
+            Item item = followsTable.getItem(spec);
+            if (item == null) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**
      * Delete a followee from the Follows Table
-     *
-     * @param followerAlias
+     *  @param curUser
+     * @param followee
      */
     @Override
-    public void deleteFollowee(String followerAlias) {
-
+    public void deleteFollowee(User curUser, User followee) throws DataAccessException {
+        DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
+                .withPrimaryKey("follower_handle", curUser.getAlias(), "followee_handle", followee.getAlias());
+        try {
+            followsTable.deleteItem(deleteItemSpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**

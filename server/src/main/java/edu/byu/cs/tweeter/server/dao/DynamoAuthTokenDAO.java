@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 
 import java.util.Date;
 
@@ -36,6 +37,17 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
     @Override
     public AuthToken getAuthToken(String token) {
         return null;
+    }
+
+    @Override
+    public String getUserAlias(String token) throws DataAccessException {
+        GetItemSpec spec = new GetItemSpec().withPrimaryKey(new PrimaryKey("token_value", token));
+        try {
+            Item item = authTokenTable.getItem(spec);
+            return item.getString("alias");
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     @Override
