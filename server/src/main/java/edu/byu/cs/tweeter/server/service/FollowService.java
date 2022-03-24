@@ -32,7 +32,7 @@ public class FollowService extends Service {
         List<String> followeeAliases = pair.getFirst();
         boolean hasMorePages = pair.getSecond();
 
-        List<User> followees = getFolloweeProfiles(followeeAliases, request.getLimit());
+        List<User> followees = getUserProfiles(followeeAliases, request.getLimit());
 
         return new FollowingResponse(followees, hasMorePages);
     }
@@ -40,7 +40,13 @@ public class FollowService extends Service {
     public FollowerResponse getFollowers(PagedRequest<User> request) {
         verifyPagedRequest(request);
 
-        return getFollowDAO().getFollowers(request);
+        Pair<List<String>, Boolean> pair = queryFollowsIndex(request);
+        List<String> followerAliases = pair.getFirst();
+        boolean hasMorePages = pair.getSecond();
+
+        List<User> followers = getUserProfiles(followerAliases, request.getLimit());
+
+        return new FollowerResponse(followers, hasMorePages);
     }
 
     public CountResponse getFollowingCount(TargetUserRequest request) {
@@ -106,17 +112,25 @@ public class FollowService extends Service {
         }
     }
 
-    private List<User> getFolloweeProfiles(List<String> aliases, int limit) {
-        List<User> followees = new ArrayList<>(limit);
+    private Pair<List<String>, Boolean> queryFollowsIndex(PagedRequest<User> request) {
+        try {
+            return getFollowDAO().getFollowers(request);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to get followers");
+        }
+    }
+
+    private List<User> getUserProfiles(List<String> aliases, int limit) {
+        List<User> users = new ArrayList<>(limit);
         for (String alias : aliases) {
             try {
-                User followee = getUserDAO().getUser(alias);
-                followees.add(followee);
+                User user = getUserDAO().getUser(alias);
+                users.add(user);
             } catch (DataAccessException e) {
-                throw new RuntimeException("[Server Error] Unable to get followees profiles");
+                throw new RuntimeException("[Server Error] Unable to get user profiles");
             }
         }
-        return followees;
+        return users;
     }
 
     private void addFollowee(TargetUserRequest request) {

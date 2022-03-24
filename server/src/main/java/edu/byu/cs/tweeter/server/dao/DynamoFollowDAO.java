@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.server.dao;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Index;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
@@ -19,7 +20,6 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.server.service.FollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
@@ -109,29 +109,28 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
      * @return the followers.
      */
     @Override
-    public FollowerResponse getFollowers(PagedRequest<User> request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
+    public Pair<List<String>, Boolean> getFollowers(PagedRequest<User> request) throws DataAccessException {
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
 
-        List<User> allFollowers = getDummyUsers();
-        List<User> responseFollowers = new ArrayList<>(request.getLimit());
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
 
-        boolean hasMorePages = false;
+        List<String> followerAliases = new ArrayList<>(request.getLimit());
 
-        if(request.getLimit() > 0) {
-            if (allFollowers != null) {
-                int followersIndex = getItemsStartingIndex(request.getLastItem(), allFollowers);
+        items = queryFollowsIndex(request);
 
-                for(int limitCounter = 0; followersIndex < allFollowers.size() && limitCounter < request.getLimit(); followersIndex++, limitCounter++) {
-                    responseFollowers.add(allFollowers.get(followersIndex));
-                }
-
-                hasMorePages = followersIndex < allFollowers.size();
-            }
+        iterator = items.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next();
+            String userAlias = item.getString("follower_handle");
+            followerAliases.add(userAlias);
         }
 
-        return new FollowerResponse(responseFollowers, hasMorePages);
+        boolean hasMorePages = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey() != null;
+
+        return new Pair<>(followerAliases, hasMorePages);
     }
 
     /**
@@ -192,6 +191,24 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
 
         try {
             return followsTable.query(querySpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    private ItemCollection<QueryOutcome> queryFollowsIndex(PagedRequest<User> request) throws DataAccessException {
+        HashMap<String, Object> valueMap = new HashMap<>();
+        valueMap.put(":handle", request.getUserAlias());
+
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("followee_handle = :handle").withValueMap(valueMap)
+                .withMaxResultSize(request.getLimit());
+        if (request.getLastItem() != null) {
+            querySpec.withExclusiveStartKey("followee_handle", request.getUserAlias(), "follower_handle", request.getLastItem().getAlias());
+        }
+
+        Index followsIndex = followsTable.getIndex("follows-index");
+        try {
+            return followsIndex.query(querySpec);
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
