@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
@@ -11,6 +14,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class FollowService extends Service {
 
@@ -24,7 +28,13 @@ public class FollowService extends Service {
     public FollowingResponse getFollowees(PagedRequest<User> request) {
         verifyPagedRequest(request);
 
-        return getFollowDAO().getFollowees(request);
+        Pair<List<String>, Boolean> pair = queryFollowsTable(request);
+        List<String> followeeAliases = pair.getFirst();
+        boolean hasMorePages = pair.getSecond();
+
+        List<User> followees = getFolloweeProfiles(followeeAliases, request.getLimit());
+
+        return new FollowingResponse(followees, hasMorePages);
     }
 
     public FollowerResponse getFollowers(PagedRequest<User> request) {
@@ -86,6 +96,27 @@ public class FollowService extends Service {
         } catch (DataAccessException e) {
             throw new RuntimeException("[Server Error] Could not determine following relationship");
         }
+    }
+
+    private Pair<List<String>, Boolean> queryFollowsTable(PagedRequest<User> request) {
+        try {
+            return getFollowDAO().getFollowees(request);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to get followees");
+        }
+    }
+
+    private List<User> getFolloweeProfiles(List<String> aliases, int limit) {
+        List<User> followees = new ArrayList<>(limit);
+        for (String alias : aliases) {
+            try {
+                User followee = getUserDAO().getUser(alias);
+                followees.add(followee);
+            } catch (DataAccessException e) {
+                throw new RuntimeException("[Server Error] Unable to get followees profiles");
+            }
+        }
+        return followees;
     }
 
     private void addFollowee(TargetUserRequest request) {

@@ -3,21 +3,27 @@ package edu.byu.cs.tweeter.server.service;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.server.dao.DynamoFollowDAO;
+import edu.byu.cs.tweeter.server.dao.DynamoUserDAO;
+import edu.byu.cs.tweeter.util.Pair;
 
 public class FollowServiceTest {
 
     private PagedRequest<User> request;
     private FollowingResponse expectedResponse;
+    private Pair<List<String>, Boolean> expectedPair;
     private DynamoFollowDAO mockDynamoFollowDAO;
+    private DynamoUserDAO mockDynamoUserDAO;
     private FollowService followServiceSpy;
 
     @Before
@@ -37,12 +43,22 @@ public class FollowServiceTest {
         request = new PagedRequest<>(authToken, currentUser.getAlias(), 3, null);
 
         // Setup a mock DynamoFollowDAO that will return known responses
+        expectedPair = new Pair<List<String>, Boolean>(Arrays.asList(resultUser1.alias, resultUser2.alias, resultUser3.alias), false);
+        mockDynamoUserDAO = Mockito.mock(DynamoUserDAO.class);
         expectedResponse = new FollowingResponse(Arrays.asList(resultUser1, resultUser2, resultUser3), false);
         mockDynamoFollowDAO = Mockito.mock(DynamoFollowDAO.class);
-        Mockito.when(mockDynamoFollowDAO.getFollowees(request)).thenReturn(expectedResponse);
+        try {
+            Mockito.when(mockDynamoFollowDAO.getFollowees(request)).thenReturn(expectedPair);
+            Mockito.when(mockDynamoUserDAO.getUser(resultUser1.getAlias())).thenReturn(resultUser1);
+            Mockito.when(mockDynamoUserDAO.getUser(resultUser2.getAlias())).thenReturn(resultUser2);
+            Mockito.when(mockDynamoUserDAO.getUser(resultUser3.getAlias())).thenReturn(resultUser3);
+        } catch (edu.byu.cs.tweeter.server.dao.DataAccessException e) {
+            e.printStackTrace();
+        }
 
         followServiceSpy = Mockito.spy(FollowService.class);
         Mockito.when(followServiceSpy.getFollowDAO()).thenReturn(mockDynamoFollowDAO);
+        Mockito.when(followServiceSpy.getUserDAO()).thenReturn(mockDynamoUserDAO);
     }
 
     /**
