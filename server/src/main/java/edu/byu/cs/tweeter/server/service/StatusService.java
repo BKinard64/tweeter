@@ -11,6 +11,7 @@ import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
+import edu.byu.cs.tweeter.util.Pair;
 import edu.byu.cs.tweeter.util.Triple;
 
 public class StatusService extends Service {
@@ -46,7 +47,20 @@ public class StatusService extends Service {
     public StoryResponse getStory(PagedRequest<Status> request) {
         verifyPagedRequest(request);
 
-        return getStoryDAO().getStory(request);
+        User targetUser = getTargetUser(request.getUserAlias());
+
+        Pair<List<Status>, Boolean> pair = null;
+        try {
+            pair = getStoryDAO().getStory(request, targetUser);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unalbe to get User's story");
+        }
+        List<Status> feedPage = pair.getFirst();
+        boolean hasMorePages = pair.getSecond();
+
+        parsePost(feedPage);
+
+        return new StoryResponse(feedPage, hasMorePages);
     }
 
     public Response postStatus(StatusRequest request) {
@@ -56,7 +70,11 @@ public class StatusService extends Service {
             throw new RuntimeException("[Bad Request] Request needs to have a status");
         }
 
-        getStoryDAO().updateStory(request.getStatus());
+        try {
+            getStoryDAO().addStatus(request.getStatus());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to post status to user's story");
+        }
 
         List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
         for (String followerAlias : followerAliases) {
@@ -83,6 +101,14 @@ public class StatusService extends Service {
                     throw new RuntimeException("[Server Error] Unable to get poster info");
                 }
             }
+        }
+    }
+
+    private User getTargetUser(String userAlias) {
+        try {
+            return getUserDAO().getUser(userAlias);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to get user info");
         }
     }
 

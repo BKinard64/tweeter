@@ -1,6 +1,19 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -9,30 +22,37 @@ import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.service.StoryDAO;
 import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.util.Triple;
 
 /**
  * A DAO for accessing 'story' data from the database.
  */
 public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
+    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder
+            .standard()
+            .withRegion("us-west-1")
+            .build();
+    private final DynamoDB dynamoDB = new DynamoDB(client);
+
+    private final Table storyTable = dynamoDB.getTable("story");
 
     /**
-     * Create a story in the Story Table
+     * Add a status to the Story Table
      *
      * @param status
      */
     @Override
-    public void createStory(Status status) {
-
-    }
-
-    /**
-     * Add a Status to the Story Table
-     *
-     * @param status
-     */
-    @Override
-    public void updateStory(Status status) {
-
+    public void addStatus(Status status) throws DataAccessException {
+        SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+        try {
+            Date date = format.parse(status.getDate());
+            storyTable.putItem(new Item()
+                                    .withPrimaryKey("sender_alias", status.getUser().getAlias(), "timestamp", date.getTime())
+                                    .withString("post", status.getPost()));
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**
@@ -43,45 +63,39 @@ public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
      *
      * @param request contains information about the user whose story is to be returned and any
      *                other information required to satisfy the request.
+     * @param targetUser
      * @return the statuses.
      */
     @Override
-    public StoryResponse getStory(PagedRequest<Status> request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
+    public Pair<List<Status>, Boolean> getStory(PagedRequest<Status> request, User targetUser) throws DataAccessException {
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
 
-        List<Status> allStatuses = getDummyStatuses();
-        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
 
-        boolean hasMorePages = false;
+        List<Status> feedPage = new ArrayList<>(request.getLimit());
+        SimpleDateFormat statusFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
 
-        if(request.getLimit() > 0) {
-            if (allStatuses != null) {
-                int statusesIndex = getItemsStartingIndex(request.getLastItem(), allStatuses);
+        items = queryStoryTable(request);
 
-                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
-                    responseStatuses.add(allStatuses.get(statusesIndex));
-                }
+        iterator = items.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next();
 
-                hasMorePages = statusesIndex < allStatuses.size();
-            }
+            long timestamp = item.getLong("timestamp");
+            Date date = new Date(timestamp);
+            String datetime = statusFormat.format(date);
+            String post = item.getString("post");
+
+            Status status = new Status(post, targetUser, datetime, null, null);
+            feedPage.add(status);
         }
 
-        return new StoryResponse(responseStatuses, hasMorePages);
-    }
+        boolean hasMorePages = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey() != null;
 
-    /**
-     * Gets the count of statuses from the database that the user specified has in their story. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param user the User whose count of how many statuses is desired.
-     * @return said count.
-     */
-    public Integer getStatusCount(User user) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert user != null;
-        return getDummyStatuses().size();
+        return new Pair<>(feedPage, hasMorePages);
     }
 
     /**
@@ -94,24 +108,28 @@ public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
 
     }
 
-    /**
-     * Returns the list of dummy status data. This is written as a separate method to allow
-     * mocking of the statuses.
-     *
-     * @return the statuses.
-     */
-    List<Status> getDummyStatuses() {
-        return getFakeData().getFakeStatuses();
-    }
+    private ItemCollection<QueryOutcome> queryStoryTable(PagedRequest<Status> request) throws DataAccessException {
+        HashMap<String, Object> valueMap = new HashMap<>();
+        valueMap.put(":handle", request.getUserAlias());
 
-    /**
-     * Returns the {@link FakeData} object used to generate dummy statuses.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("sender_alias = :handle").withValueMap(valueMap)
+                .withMaxResultSize(request.getLimit());
+        if (request.getLastItem() != null) {
+            SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+            Date date;
+            try {
+                date = format.parse(request.getLastItem().getDate());
+            } catch (Exception e) {
+                throw new RuntimeException("[Server Error] Unable to parse date/time");
+            }
+            querySpec.withExclusiveStartKey("sender_alias", request.getUserAlias(), "timestamp", date.getTime());
+        }
+
+        try {
+            return storyTable.query(querySpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 }
 
