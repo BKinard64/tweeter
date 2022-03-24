@@ -54,16 +54,6 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
     }
 
     /**
-     * Add a follower to the Follows Table
-     *
-     * @param user
-     */
-    @Override
-    public void createFollower(User user) {
-
-    }
-
-    /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the
      * next set of followees after any that were returned in a previous request. The current
@@ -169,16 +159,6 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
         }
     }
 
-    /**
-     * Delete a follower from the Follows Table
-     *
-     * @param user
-     */
-    @Override
-    public void deleteFollower(User user) {
-
-    }
-
     private ItemCollection<QueryOutcome> queryFollowsTable(PagedRequest<User> request) throws DataAccessException {
         HashMap<String, Object> valueMap = new HashMap<>();
         valueMap.put(":handle", request.getUserAlias());
@@ -212,25 +192,5 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
-    }
-
-    /**
-     * Returns the list of dummy followee data. This is written as a separate method to allow
-     * mocking of the followees.
-     *
-     * @return the followees.
-     */
-    List<User> getDummyUsers() {
-        return getFakeData().getFakeUsers();
-    }
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy followees.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
     }
 }

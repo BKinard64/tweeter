@@ -161,12 +161,4 @@ public class DynamoUserDAO implements UserDAO {
         }
         return "FAILED TO HASH PASSWORD";
     }
-
-    public User getDummyUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    public FakeData getFakeData() {
-        return new FakeData();
-    }
 }
