@@ -56,8 +56,16 @@ public class Status implements Serializable {
         return post;
     }
 
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
+    }
+
     public List<String> getUrls() {
         return urls;
+    }
+
+    public void setMentions(List<String> mentions) {
+        this.mentions = mentions;
     }
 
     public List<String> getMentions() {

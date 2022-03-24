@@ -123,6 +123,36 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
         return new Pair<>(followerAliases, hasMorePages);
     }
 
+    @Override
+    public List<String> getAllFollowers(String followeeAlias) throws DataAccessException {
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
+
+        List<String> followerAliases = new ArrayList<>();
+
+        HashMap<String, Object> valueMap = new HashMap<>();
+        valueMap.put(":handle", followeeAlias);
+
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("followee_handle = :handle").withValueMap(valueMap);
+
+        Index followsIndex = followsTable.getIndex("follows-index");
+        try {
+            items = followsIndex.query(querySpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+
+        iterator = items.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next();
+            String userAlias = item.getString("follower_handle");
+            followerAliases.add(userAlias);
+        }
+
+        return followerAliases;
+    }
+
     /**
      * Determines if the first user specified is following the second user specified
      *  @param followerAlias

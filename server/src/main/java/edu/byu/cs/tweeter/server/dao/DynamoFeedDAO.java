@@ -1,6 +1,19 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -9,30 +22,38 @@ import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
 import edu.byu.cs.tweeter.server.service.FeedDAO;
 import edu.byu.cs.tweeter.util.FakeData;
+import edu.byu.cs.tweeter.util.Triple;
 
 /**
  * A DAO for accessing 'feed' data from the database.
  */
 public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
+    private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder
+            .standard()
+            .withRegion("us-west-1")
+            .build();
+    private final DynamoDB dynamoDB = new DynamoDB(client);
+
+    private final Table feedTable = dynamoDB.getTable("feed");
 
     /**
      * Create a feed in the Feed Table
      *
+     * @param receiverAlias
      * @param status
      */
     @Override
-    public void createFeed(Status status) {
-
-    }
-
-    /**
-     * Add a Status to the Feed Table
-     *
-     * @param status
-     */
-    @Override
-    public void updateFeed(Status status) {
-
+    public void addStatus(String receiverAlias, Status status) throws DataAccessException {
+        SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+        try {
+            Date date = format.parse(status.getDate());
+            feedTable.putItem(new Item()
+                                    .withPrimaryKey("receiver_alias", receiverAlias, "timestamp", date.getTime())
+                                    .withString("sender_alias", status.getUser().getAlias())
+                                    .withString("post", status.getPost()));
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 
     /**
@@ -46,42 +67,39 @@ public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
      * @return the statuses.
      */
     @Override
-    public FeedResponse getFeed(PagedRequest<Status> request) {
-        // TODO: Generates dummy data. Replace with a real implementation.
+    public Triple<List<String>, List<Status>, Boolean> getFeed(PagedRequest<Status> request) throws DataAccessException {
         assert request.getLimit() > 0;
         assert request.getUserAlias() != null;
 
-        List<Status> allStatuses = getDummyStatuses();
-        List<Status> responseStatuses = new ArrayList<>(request.getLimit());
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
 
-        boolean hasMorePages = false;
+        List<String> posterAliases = new ArrayList<>(request.getLimit());
+        List<Status> feedPage = new ArrayList<>(request.getLimit());
+        SimpleDateFormat statusFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
 
-        if(request.getLimit() > 0) {
-            if (allStatuses != null) {
-                int statusesIndex = getItemsStartingIndex(request.getLastItem(), allStatuses);
+        items = queryFeedTable(request);
 
-                for(int limitCounter = 0; statusesIndex < allStatuses.size() && limitCounter < request.getLimit(); statusesIndex++, limitCounter++) {
-                    responseStatuses.add(allStatuses.get(statusesIndex));
-                }
+        iterator = items.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next();
 
-                hasMorePages = statusesIndex < allStatuses.size();
-            }
+            String posterAlias = item.getString("sender_alias");
+            long timestamp = item.getLong("timestamp");
+            Date date = new Date(timestamp);
+            String datetime = statusFormat.format(date);
+            String post = item.getString("post");
+
+            posterAliases.add(posterAlias);
+
+            Status status = new Status(post, null, datetime, null, null);
+            feedPage.add(status);
         }
 
-        return new FeedResponse(responseStatuses, hasMorePages);
-    }
+        boolean hasMorePages = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey() != null;
 
-    /**
-     * Gets the count of statuses from the database that the user specified has in their feed. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param user the User whose count of how many statuses is desired.
-     * @return said count.
-     */
-    public Integer getStatusCount(User user) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-        assert user != null;
-        return getDummyStatuses().size();
+        return new Triple<>(posterAliases, feedPage, hasMorePages);
     }
 
     /**
@@ -94,23 +112,27 @@ public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
 
     }
 
-    /**
-     * Returns the list of dummy status data. This is written as a separate method to allow
-     * mocking of the statuses.
-     *
-     * @return the statuses.
-     */
-    List<Status> getDummyStatuses() {
-        return getFakeData().getFakeStatuses();
-    }
+    private ItemCollection<QueryOutcome> queryFeedTable(PagedRequest<Status> request) throws DataAccessException {
+        HashMap<String, Object> valueMap = new HashMap<>();
+        valueMap.put(":handle", request.getUserAlias());
 
-    /**
-     * Returns the {@link FakeData} object used to generate dummy statuses.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return new FakeData();
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("receiver_alias = :handle").withValueMap(valueMap)
+                .withMaxResultSize(request.getLimit());
+        if (request.getLastItem() != null) {
+            SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+            Date date;
+            try {
+                date = format.parse(request.getLastItem().getDate());
+            } catch (Exception e) {
+                throw new RuntimeException("[Server Error] Unable to parse date/time");
+            }
+            querySpec.withExclusiveStartKey("receiver_alias", request.getUserAlias(), "timestamp", date.getTime());
+        }
+
+        try {
+            return feedTable.query(querySpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
     }
 }
