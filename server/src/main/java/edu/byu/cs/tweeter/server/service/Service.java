@@ -52,7 +52,7 @@ public abstract class Service {
     }
 
     private boolean isAuthTokenExpired(AuthToken authToken) {
-        long FOUR_HOUR_THRESHOLD = 900000;
+        long TIME_OUT_THRESHOLD = 900000;   // 15 minutes
 
         SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
         long authTime;
@@ -63,7 +63,7 @@ public abstract class Service {
         }
         long curTime = new Date().getTime();
 
-        return Math.abs(curTime - authTime) >= FOUR_HOUR_THRESHOLD;
+        return Math.abs(curTime - authTime) >= TIME_OUT_THRESHOLD;
     }
 
     protected boolean verifyPagedRequest(PagedRequest request) {
