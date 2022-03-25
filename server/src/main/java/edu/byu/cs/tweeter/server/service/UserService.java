@@ -61,6 +61,8 @@ public class UserService extends Service {
     public UserResponse getUser(TargetUserRequest request) {
         boolean sessionActive = verifyTargetUserRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             try {
                 User user = getUserDAO().getUser(request.getTargetUserAlias());
                 return new UserResponse(user);
@@ -76,6 +78,8 @@ public class UserService extends Service {
     public Response logout(AuthenticatedRequest request) {
         boolean sessionActive = verifyAuthenticatedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             try {
                 getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
             } catch (DataAccessException e) {

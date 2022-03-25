@@ -113,7 +113,8 @@ public class DynamoStoryDAO extends PagedDAO<Status> implements StoryDAO {
         valueMap.put(":handle", request.getUserAlias());
 
         QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("sender_alias = :handle").withValueMap(valueMap)
-                .withMaxResultSize(request.getLimit());
+                .withMaxResultSize(request.getLimit())
+                .withScanIndexForward(false);
         if (request.getLastItem() != null) {
             SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
             Date date;

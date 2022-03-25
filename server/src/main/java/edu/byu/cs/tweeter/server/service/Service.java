@@ -52,7 +52,7 @@ public abstract class Service {
     }
 
     private boolean isAuthTokenExpired(AuthToken authToken) {
-        long FOUR_HOUR_THRESHOLD = 15000; // TODO: FIX-ME 14400000
+        long FOUR_HOUR_THRESHOLD = 900000;
 
         SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
         long authTime;
@@ -82,5 +82,13 @@ public abstract class Service {
         }
 
         return verifyAuthenticatedRequest(request);
+    }
+
+    protected void updateAuthTokenActivity(AuthToken authToken) {
+        try {
+            getAuthTokenDAO().updateAuthTokenTimestamp(authToken.getToken());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to update AuthToken");
+        }
     }
 }

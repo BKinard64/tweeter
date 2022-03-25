@@ -117,7 +117,8 @@ public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
         valueMap.put(":handle", request.getUserAlias());
 
         QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("receiver_alias = :handle").withValueMap(valueMap)
-                .withMaxResultSize(request.getLimit());
+                .withMaxResultSize(request.getLimit())
+                .withScanIndexForward(false);
         if (request.getLastItem() != null) {
             SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
             Date date;

@@ -28,6 +28,8 @@ public class FollowService extends Service {
     public FollowingResponse getFollowees(PagedRequest<User> request) {
         boolean sessionActive = verifyPagedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             Pair<List<String>, Boolean> pair = queryFollowsTable(request);
             List<String> followeeAliases = pair.getFirst();
             boolean hasMorePages = pair.getSecond();
@@ -43,6 +45,8 @@ public class FollowService extends Service {
     public FollowerResponse getFollowers(PagedRequest<User> request) {
         boolean sessionActive = verifyPagedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             Pair<List<String>, Boolean> pair = queryFollowsIndex(request);
             List<String> followerAliases = pair.getFirst();
             boolean hasMorePages = pair.getSecond();
@@ -58,6 +62,8 @@ public class FollowService extends Service {
     public CountResponse getFollowingCount(TargetUserRequest request) {
         boolean sessionActive = verifyTargetUserRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             try {
                 int count = getUserDAO().getFolloweeCount(request.getTargetUserAlias());
                 return new CountResponse(count);
@@ -72,6 +78,8 @@ public class FollowService extends Service {
     public CountResponse getFollowersCount(TargetUserRequest request) {
         boolean sessionActive = verifyTargetUserRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             try {
                 int count = getUserDAO().getFollowerCount(request.getTargetUserAlias());
                 return new CountResponse(count);
@@ -86,6 +94,8 @@ public class FollowService extends Service {
     public Response follow(TargetUserRequest request) {
         boolean sessionActive = verifyTargetUserRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             addFollowee(request);
 
             return new Response(true);
@@ -97,6 +107,8 @@ public class FollowService extends Service {
     public Response unfollow(TargetUserRequest request) {
         boolean sessionActive = verifyTargetUserRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             removeFollowee(request);
 
             return new Response(true);
@@ -108,6 +120,8 @@ public class FollowService extends Service {
     public IsFollowerResponse isFollower(IsFollowerRequest request) {
         boolean sessionActive = verifyAuthenticatedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             if (request.getFollowerAlias() == null) {
                 throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
             } else if (request.getFolloweeAlias() == null) {

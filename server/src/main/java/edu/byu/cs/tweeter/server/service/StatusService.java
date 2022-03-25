@@ -29,6 +29,8 @@ public class StatusService extends Service {
     public FeedResponse getFeed(PagedRequest<Status> request) {
         boolean sessionActive = verifyPagedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             Triple<List<String>, List<Status>, Boolean> triple;
             try {
                 triple = getFeedDAO().getFeed(request);
@@ -51,6 +53,8 @@ public class StatusService extends Service {
     public StoryResponse getStory(PagedRequest<Status> request) {
         boolean sessionActive = verifyPagedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             User targetUser = getTargetUser(request.getUserAlias());
 
             Pair<List<Status>, Boolean> pair = null;
@@ -73,6 +77,8 @@ public class StatusService extends Service {
     public Response postStatus(StatusRequest request) {
         boolean sessionActive = verifyAuthenticatedRequest(request);
         if (sessionActive) {
+            updateAuthTokenActivity(request.getAuthToken());
+
             if (request.getStatus() == null) {
                 throw new RuntimeException("[Bad Request] Request needs to have a status");
             }

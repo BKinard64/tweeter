@@ -11,8 +11,10 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,6 +72,21 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
     }
 
     @Override
+    public void updateAuthTokenTimestamp(String token) throws DataAccessException {
+        UpdateItemSpec spec = new UpdateItemSpec().withPrimaryKey("token_value", token)
+                                    .withUpdateExpression("set #ts = :val")
+                                    .withNameMap(new NameMap().with("#ts", "timestamp"))
+                                    .withValueMap(new ValueMap().withNumber(":val", new Date().getTime()))
+                                    .withReturnValues(ReturnValue.UPDATED_NEW);
+
+        try {
+            authTokenTable.updateItem(spec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
     public void deleteAuthToken(AuthToken authToken) throws DataAccessException {
         DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
                 .withPrimaryKey(new PrimaryKey("token_value", authToken.getToken()));
@@ -104,7 +121,7 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
 
     private ItemCollection<ScanOutcome> getExpiredAuthTokens() throws DataAccessException {
         long curTime = new Date().getTime();
-        long expThreshold = curTime - 15000; // TODO: FIX-ME 14400000
+        long expThreshold = curTime - 900000;
 
         ScanSpec spec = new ScanSpec()
                 .withFilterExpression("#ts <= :val")
