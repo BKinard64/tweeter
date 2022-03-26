@@ -98,19 +98,19 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
     }
 
     @Override
-    public void deleteExpiredAuthTokens() throws DataAccessException {
+    public void deleteExpiredAuthTokens(String token) throws DataAccessException {
         ItemCollection<ScanOutcome> items;
         Iterator<Item> iterator;
         Item item;
 
-        items = getExpiredAuthTokens();
+        items = getExpiredAuthTokens(token);
         iterator = items.iterator();
 
         while (iterator.hasNext()) {
             item = iterator.next();
-            String token = item.getString("token_value");
+            String token_val = item.getString("token_value");
             DeleteItemSpec spec = new DeleteItemSpec()
-                                        .withPrimaryKey(new PrimaryKey("token_value", token));
+                                        .withPrimaryKey(new PrimaryKey("token_value", token_val));
             try {
                 authTokenTable.deleteItem(spec);
             } catch (Exception e) {
@@ -119,14 +119,14 @@ public class DynamoAuthTokenDAO implements AuthTokenDAO {
         }
     }
 
-    private ItemCollection<ScanOutcome> getExpiredAuthTokens() throws DataAccessException {
+    private ItemCollection<ScanOutcome> getExpiredAuthTokens(String token) throws DataAccessException {
         long curTime = new Date().getTime();
-        long expThreshold = curTime - 900000;
+        long expThreshold = curTime - 900000;    // 15 minutes
 
         ScanSpec spec = new ScanSpec()
-                .withFilterExpression("#ts <= :val")
-                .withNameMap(new NameMap().with("#ts", "timestamp"))
-                .withValueMap(new ValueMap().withNumber(":val", expThreshold));
+                .withFilterExpression("#ts <= :val and not(#tv = :tok)")
+                .withNameMap(new NameMap().with("#ts", "timestamp").with("#tv", "token_value"))
+                .withValueMap(new ValueMap().withNumber(":val", expThreshold).withString(":tok", token));
 
         try {
             return authTokenTable.scan(spec);

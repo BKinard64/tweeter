@@ -46,7 +46,7 @@ public class StatusService extends Service {
 
             return new FeedResponse(feedPage, hasMorePages);
         } else {
-            return new FeedResponse("User Session expired. Returning to Login Screen.");
+            return new FeedResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -70,7 +70,7 @@ public class StatusService extends Service {
 
             return new StoryResponse(feedPage, hasMorePages);
         } else {
-            return new StoryResponse("User Session expired. Returning to Login Screen.");
+            return new StoryResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -100,7 +100,7 @@ public class StatusService extends Service {
 
             return new Response(true);
         } else {
-            return new Response(false, "User Session expired. Returning to Login Screen.");
+            return new Response(false, "User Session expired. Logout and log back in to continue.");
         }
     }
 

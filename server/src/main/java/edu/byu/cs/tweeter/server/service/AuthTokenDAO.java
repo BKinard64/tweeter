@@ -9,5 +9,5 @@ public interface AuthTokenDAO {
     public String getUserAlias(String token) throws DataAccessException;
     public void updateAuthTokenTimestamp(String token) throws DataAccessException;
     public void deleteAuthToken(AuthToken authToken) throws DataAccessException;
-    public void deleteExpiredAuthTokens() throws DataAccessException;
+    public void deleteExpiredAuthTokens(String token) throws DataAccessException;
 }

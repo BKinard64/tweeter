@@ -96,17 +96,6 @@ public class FollowersFragment extends Fragment implements PagedView<User> {
     }
 
     @Override
-    public void logoutUser() {
-        //Revert to login screen.
-        Intent intent = new Intent(getContext(), LoginActivity.class);
-        //Clear everything so that the main activity is recreated with the login page.
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        //Clear user data (cached data).
-        Cache.getInstance().clearCache();
-        startActivity(intent);
-    }
-
-    @Override
     public void setLoadingStatus(boolean value) {
         if (value) {
             followersRecyclerViewAdapter.addLoadingFooter();

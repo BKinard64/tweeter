@@ -185,9 +185,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
     @Override
     public void logoutUser() {
-        if (logOutToast != null) {
-            logOutToast.cancel();
-        }
+        logOutToast.cancel();
         //Revert to login screen.
         Intent intent = new Intent(this, LoginActivity.class);
         //Clear everything so that the main activity is recreated with the login page.

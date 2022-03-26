@@ -38,7 +38,7 @@ public class FollowService extends Service {
 
             return new FollowingResponse(followees, hasMorePages);
         } else {
-            return new FollowingResponse("User Session expired. Returning to Login Screen.");
+            return new FollowingResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -55,7 +55,7 @@ public class FollowService extends Service {
 
             return new FollowerResponse(followers, hasMorePages);
         } else {
-            return new FollowerResponse("User Session expired. Returning to Login Screen.");
+            return new FollowerResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -71,7 +71,7 @@ public class FollowService extends Service {
                 throw new RuntimeException("[Server Error] Unable to get following count");
             }
         } else {
-            return new CountResponse("User Session expired. Returning to Login Screen.");
+            return new CountResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -87,7 +87,7 @@ public class FollowService extends Service {
                 throw new RuntimeException("[Server Error] Unable to get followers count");
             }
         } else {
-            return new CountResponse("User Session expired. Returning to Login Screen.");
+            return new CountResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -100,7 +100,7 @@ public class FollowService extends Service {
 
             return new Response(true);
         } else {
-            return new Response(false, "User Session expired. Returning to Login Screen.");
+            return new Response(false, "User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -113,7 +113,7 @@ public class FollowService extends Service {
 
             return new Response(true);
         } else {
-            return new Response(false, "User Session expired. Returning to Login Screen.");
+            return new Response(false, "User Session expired. Logout and log back in to continue.");
         }
     }
 
@@ -135,7 +135,7 @@ public class FollowService extends Service {
                 throw new RuntimeException("[Server Error] Could not determine following relationship");
             }
         } else {
-            return new IsFollowerResponse("User Session expired. Returning to Login Screen.");
+            return new IsFollowerResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 

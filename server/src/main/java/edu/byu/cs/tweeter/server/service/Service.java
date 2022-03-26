@@ -40,7 +40,7 @@ public abstract class Service {
 
         if (isAuthTokenExpired(authToken)) {
             try {
-                getAuthTokenDAO().deleteExpiredAuthTokens();
+                getAuthTokenDAO().deleteExpiredAuthTokens(authToken.getToken());
             } catch (DataAccessException e) {
                 throw new RuntimeException("[Server Error] Failed to delete expired AuthTokens");
             }

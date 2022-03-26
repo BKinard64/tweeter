@@ -71,25 +71,22 @@ public class UserService extends Service {
                 throw new RuntimeException("[Bad Request] Cannot find User with alias: " + request.getTargetUserAlias());
             }
         } else {
-            return new UserResponse("User Session expired. Returning to Login Screen.");
+            return new UserResponse("User Session expired. Logout and log back in to continue.");
         }
     }
 
     public Response logout(AuthenticatedRequest request) {
-        boolean sessionActive = verifyAuthenticatedRequest(request);
-        if (sessionActive) {
-            updateAuthTokenActivity(request.getAuthToken());
-
-            try {
-                getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
-            } catch (DataAccessException e) {
-                throw new RuntimeException("[Server Error] Unable to delete AuthToken from database\n"
-                        + e.getMessage());
-            }
-            return new Response(true);
-        } else {
-            return new Response(false, "User Session expired. Returning to Login Screen.");
+        if (request.getAuthToken() == null) {
+            throw new RuntimeException("[Bad Request] Request needs to have an AuthToken");
         }
+
+        try {
+            getAuthTokenDAO().deleteAuthToken(request.getAuthToken());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to delete AuthToken from database\n"
+                    + e.getMessage());
+        }
+        return new Response(true);
     }
 
     private void checkForUsernameAndPassword(String username, String password) {
