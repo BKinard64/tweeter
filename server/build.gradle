@@ -11,6 +11,7 @@ dependencies {
     implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.0'
     implementation 'com.amazonaws:aws-java-sdk-core:1.12.182'
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.182'
+    implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.189'
 
     // Testing related dependencies
 

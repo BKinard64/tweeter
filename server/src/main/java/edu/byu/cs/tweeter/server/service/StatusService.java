@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +92,14 @@ public class StatusService extends Service {
                 throw new RuntimeException("[Server Error] Unable to post status to user's story");
             }
 
+            String messageBody = new Gson().toJson(request.getStatus());
+            String queueURL = "https://sqs.us-west-1.amazonaws.com/546208180313/PostStatusQueue";
+
+            AsyncMsgService asyncMsgService = new SQSService();
+            asyncMsgService.sendMessage(messageBody, queueURL);
+
+
+            // TODO: REMOVE
             List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
             for (String followerAlias : followerAliases) {
                 try {
