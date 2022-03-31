@@ -26,6 +26,8 @@ public class GetFollowingCountTask extends CountTask {
         TargetUserRequest followingCountRequest = new TargetUserRequest(getAuthToken(), getTargetUser().getAlias());
         CountResponse followingCountResponse = getServerFacade().getFollowingCount(followingCountRequest, "/getfollowingcount");
 
+        setResponse(followingCountResponse);
+
         setCount(followingCountResponse.getCount());
     }
 }

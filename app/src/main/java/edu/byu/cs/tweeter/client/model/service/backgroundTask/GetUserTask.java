@@ -41,9 +41,10 @@ public class GetUserTask extends AuthenticatedTask {
 
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
-        // TODO: Get User from database
         TargetUserRequest getUserRequest = new TargetUserRequest(getAuthToken(), alias);
         UserResponse userResponse = getServerFacade().getUser(getUserRequest, "/getuser");
+
+        setResponse(userResponse);
 
         user = userResponse.getUser();
     }

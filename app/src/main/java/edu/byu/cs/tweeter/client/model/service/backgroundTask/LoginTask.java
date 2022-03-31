@@ -26,6 +26,8 @@ public class LoginTask extends AuthenticateTask {
         LoginRequest loginRequest = new LoginRequest(username, password);
         AuthenticationResponse loginResponse = getServerFacade().login(loginRequest, "/login");
 
+        setResponse(loginResponse);
+
         return createUserAuthTokenPair(loginResponse);
     }
 }

@@ -29,13 +29,12 @@ public class UnfollowTask extends AuthenticatedTask {
 
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
-        // TODO: Doesn't do anything currently
         TargetUserRequest unfollowRequest = new TargetUserRequest(getAuthToken(), followee.getAlias());
         Response unfollowResponse = getServerFacade().unfollow(unfollowRequest, "/unfollow");
+
+        setResponse(unfollowResponse);
     }
 
     @Override
-    protected void loadSuccessBundle(Bundle msgBundle) {
-        // TODO: Nothing to override currently
-    }
+    protected void loadSuccessBundle(Bundle msgBundle) {}
 }

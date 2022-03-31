@@ -30,13 +30,12 @@ public class PostStatusTask extends AuthenticatedTask {
 
     @Override
     protected void executeTask() throws IOException, TweeterRemoteException {
-        // TODO: Does nothing currently
         StatusRequest statusRequest = new StatusRequest(getAuthToken(), status);
         Response statusResponse = getServerFacade().postStatus(statusRequest, "/poststatus");
+
+        setResponse(statusResponse);
     }
 
     @Override
-    protected void loadSuccessBundle(Bundle msgBundle) {
-        // TODO: Nothing to override currently
-    }
+    protected void loadSuccessBundle(Bundle msgBundle) {}
 }
