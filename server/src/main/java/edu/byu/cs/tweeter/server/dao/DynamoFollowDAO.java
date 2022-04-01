@@ -23,6 +23,7 @@ import edu.byu.cs.tweeter.model.net.response.FollowerResponse;
 import edu.byu.cs.tweeter.server.service.FollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.util.Triple;
 
 /**
  * A DAO for accessing "follow relationship" data from the database.
@@ -124,6 +125,34 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
     }
 
     @Override
+    public Triple<List<String>, Boolean, String> getFollowersAliases(String followeeAlias, int limit, String startKey) throws DataAccessException {
+        assert limit > 0;
+        assert followeeAlias != null;
+
+        ItemCollection<QueryOutcome> items;
+        Iterator<Item> iterator;
+        Item item;
+
+        List<String> followerAliases = new ArrayList<>(limit);
+
+        items = queryFollowsIndex(followeeAlias, limit, startKey);
+
+        iterator = items.iterator();
+        while (iterator.hasNext()) {
+            item = iterator.next();
+            String userAlias = item.getString("follower_handle");
+            followerAliases.add(userAlias);
+        }
+
+        boolean hasMorePages = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey() != null;
+        if (hasMorePages) {
+            startKey = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey().get("follower_handle").getS();
+        }
+
+        return new Triple<>(followerAliases, hasMorePages, startKey);
+    }
+
+    @Override
     public List<String> getAllFollowers(String followeeAlias) throws DataAccessException {
         ItemCollection<QueryOutcome> items;
         Iterator<Item> iterator;
@@ -214,6 +243,24 @@ public class DynamoFollowDAO extends PagedDAO<User> implements FollowDAO {
                 .withMaxResultSize(request.getLimit());
         if (request.getLastItem() != null) {
             querySpec.withExclusiveStartKey("followee_handle", request.getUserAlias(), "follower_handle", request.getLastItem().getAlias());
+        }
+
+        Index followsIndex = followsTable.getIndex("follows-index");
+        try {
+            return followsIndex.query(querySpec);
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    private ItemCollection<QueryOutcome> queryFollowsIndex(String followeeAlias, int limit, String startKey) throws DataAccessException {
+        HashMap<String, Object> valueMap = new HashMap<>();
+        valueMap.put(":handle", followeeAlias);
+
+        QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("followee_handle = :handle").withValueMap(valueMap)
+                .withMaxResultSize(limit);
+        if (startKey != null) {
+            querySpec.withExclusiveStartKey("followee_handle", followeeAlias, "follower_handle", startKey);
         }
 
         Index followsIndex = followsTable.getIndex("follows-index");

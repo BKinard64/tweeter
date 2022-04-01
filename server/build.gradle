@@ -12,6 +12,7 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-core:1.12.182'
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.182'
     implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.189'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
 
     // Testing related dependencies
 
