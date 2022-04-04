@@ -19,7 +19,7 @@ public class PostUpdateFeedMessages implements RequestHandler<SQSEvent, Void> {
 
     @Override
     public Void handleRequest(SQSEvent sqsEvent, Context context) {
-        int PAGE_LIMIT = 10;
+        int PAGE_LIMIT = 25;
 
         FollowService service = new FollowService(new DynamoDAOFactory());
         AsyncMsgService asyncMsgService = new SQSService();
