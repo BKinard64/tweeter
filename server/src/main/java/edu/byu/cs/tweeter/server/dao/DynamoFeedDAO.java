@@ -2,12 +2,15 @@ package edu.byu.cs.tweeter.server.dao;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.BatchWriteItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.TableWriteItems;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.model.WriteRequest;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -51,6 +55,39 @@ public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
                                     .withPrimaryKey("receiver_alias", receiverAlias, "timestamp", date.getTime())
                                     .withString("sender_alias", status.getUser().getAlias())
                                     .withString("post", status.getPost()));
+        } catch (Exception e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public void addStatuses(List<String> receiverAliases, Status status) throws DataAccessException {
+        SimpleDateFormat format = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+        try {
+            Date date = format.parse(status.getDate());
+
+            List<Item> items = new ArrayList<>();
+            for (String receiverAlias : receiverAliases) {
+                Item item = new Item()
+                                .withPrimaryKey("receiver_alias", receiverAlias, "timestamp", date.getTime())
+                                .withString("sender_alias", status.getUser().getAlias())
+                                .withString("post", status.getPost());
+                items.add(item);
+            }
+
+            TableWriteItems feedTableWriteItems = new TableWriteItems("feed")
+                    .withItemsToPut(items);
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(feedTableWriteItems);
+
+            do {
+                Map<String, List<WriteRequest>> unprocessedItems = outcome.getUnprocessedItems();
+
+                if (outcome.getUnprocessedItems().size() != 0) {
+                    outcome = dynamoDB.batchWriteItemUnprocessed(unprocessedItems);
+                }
+
+            } while (outcome.getUnprocessedItems().size() > 0);
+
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
@@ -100,16 +137,6 @@ public class DynamoFeedDAO extends PagedDAO<Status> implements FeedDAO {
         boolean hasMorePages = items.getLastLowLevelResult().getQueryResult().getLastEvaluatedKey() != null;
 
         return new Triple<>(posterAliases, feedPage, hasMorePages);
-    }
-
-    /**
-     * Delete a feed from the Feed Table
-     *
-     * @param status
-     */
-    @Override
-    public void deleteFeed(Status status) {
-
     }
 
     private ItemCollection<QueryOutcome> queryFeedTable(PagedRequest<Status> request) throws DataAccessException {

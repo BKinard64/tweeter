@@ -98,20 +98,17 @@ public class StatusService extends Service {
             AsyncMsgService asyncMsgService = new SQSService();
             asyncMsgService.sendMessage(messageBody, queueURL);
 
-
-            // TODO: REMOVE
-            List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
-            for (String followerAlias : followerAliases) {
-                try {
-                    getFeedDAO().addStatus(followerAlias, request.getStatus());
-                } catch (DataAccessException e) {
-                    throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
-                }
-            }
-
             return new Response(true);
         } else {
             return new Response(false, "User Session expired. Logout and log back in to continue.");
+        }
+    }
+
+    public void updateFeeds(List<String> followerAliases, Status status) {
+        try {
+            getFeedDAO().addStatuses(followerAliases, status);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
         }
     }
 

@@ -9,6 +9,6 @@ import edu.byu.cs.tweeter.util.Triple;
 
 public interface FeedDAO {
     public void addStatus(String receiverAlias, Status status) throws DataAccessException;
+    public void addStatuses(List<String> receiverAliases, Status status) throws DataAccessException;
     public Triple<List<String>, List<Status>, Boolean> getFeed(PagedRequest<Status> feedRequest) throws DataAccessException;
-    public void deleteFeed(Status status);
 }
