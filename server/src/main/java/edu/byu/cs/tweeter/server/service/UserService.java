@@ -20,7 +20,6 @@ import edu.byu.cs.tweeter.model.net.response.AuthenticationResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.UserResponse;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
-import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService extends Service {
 

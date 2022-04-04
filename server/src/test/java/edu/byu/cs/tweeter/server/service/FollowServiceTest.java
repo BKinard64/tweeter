@@ -3,7 +3,6 @@ package edu.byu.cs.tweeter.server.service;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Arrays;

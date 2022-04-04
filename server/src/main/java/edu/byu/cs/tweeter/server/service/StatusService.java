@@ -1,6 +1,5 @@
 package edu.byu.cs.tweeter.server.service;
 
-import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
-import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
