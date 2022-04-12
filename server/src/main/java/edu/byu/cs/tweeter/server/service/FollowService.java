@@ -15,6 +15,7 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
 import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.util.Triple;
 
 public class FollowService extends Service {
 
@@ -136,6 +137,14 @@ public class FollowService extends Service {
             }
         } else {
             return new IsFollowerResponse("User Session expired. Logout and log back in to continue.");
+        }
+    }
+
+    public Triple<List<String>, Boolean, String> getFollowersAliases(String followeeAlias, int limit, String startKey) {
+        try {
+            return getFollowDAO().getFollowersAliases(followeeAlias, limit, startKey);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to get follower aliases");
         }
     }
 

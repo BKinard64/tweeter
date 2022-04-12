@@ -10,7 +10,6 @@ import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
-import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -19,7 +18,6 @@ import java.util.Base64;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.server.service.UserDAO;
-import edu.byu.cs.tweeter.util.FakeData;
 
 public class DynamoUserDAO implements UserDAO {
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder
@@ -127,11 +125,6 @@ public class DynamoUserDAO implements UserDAO {
         } catch (Exception e) {
             throw new DataAccessException(e);
         }
-    }
-
-    @Override
-    public void deleteUser(User user) {
-
     }
 
     private String getSalt() {

@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,6 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.PagedRequest;
 import edu.byu.cs.tweeter.model.net.request.StatusRequest;
 import edu.byu.cs.tweeter.model.net.response.FeedResponse;
-import edu.byu.cs.tweeter.model.net.response.PagedResponse;
 import edu.byu.cs.tweeter.model.net.response.Response;
 import edu.byu.cs.tweeter.model.net.response.StoryResponse;
 import edu.byu.cs.tweeter.server.dao.DataAccessException;
@@ -89,18 +90,23 @@ public class StatusService extends Service {
                 throw new RuntimeException("[Server Error] Unable to post status to user's story");
             }
 
-            List<String> followerAliases = getFollowerAliases(request.getStatus().getUser().getAlias());
-            for (String followerAlias : followerAliases) {
-                try {
-                    getFeedDAO().addStatus(followerAlias, request.getStatus());
-                } catch (DataAccessException e) {
-                    throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
-                }
-            }
+            String messageBody = new Gson().toJson(request.getStatus());
+            String queueURL = "https://sqs.us-west-1.amazonaws.com/546208180313/PostStatusQueue";
+
+            AsyncMsgService asyncMsgService = new SQSService();
+            asyncMsgService.sendMessage(messageBody, queueURL);
 
             return new Response(true);
         } else {
             return new Response(false, "User Session expired. Logout and log back in to continue.");
+        }
+    }
+
+    public void updateFeeds(List<String> followerAliases, Status status) {
+        try {
+            getFeedDAO().addStatuses(followerAliases, status);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("[Server Error] Unable to post status to followers' feeds");
         }
     }
 

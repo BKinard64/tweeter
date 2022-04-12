@@ -11,5 +11,4 @@ public interface UserDAO {
     public void updateFollowingCount(String username, int updateVal) throws DataAccessException;
     public Integer getFolloweeCount(String followerAlias) throws DataAccessException;
     public Integer getFollowerCount(String followeeAlias) throws DataAccessException;
-    public void deleteUser(User user);
 }
