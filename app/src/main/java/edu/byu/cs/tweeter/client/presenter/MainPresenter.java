@@ -77,11 +77,15 @@ public class MainPresenter extends Presenter {
                     parseURLs(post), parseMentions(post));
 
             getStatusService().postStatus(Cache.getInstance().getCurrUserAuthToken(), newStatus,
-                    new PostStatusObserver());
+                    createPostStatusObserver());
         } catch (Exception ex) {
             getMainView().logException(ex);
             getMainView().displayMessage("Failed to post the status because of exception: " + ex.getMessage());
         }
+    }
+
+    public SimpleNotificationObserver createPostStatusObserver() {
+        return new PostStatusObserver();
     }
 
     private String getFormattedDateTime() throws ParseException {

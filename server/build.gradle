@@ -13,6 +13,8 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.182'
     implementation 'com.amazonaws:aws-java-sdk-sqs:1.12.189'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+    implementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
 
     // Testing related dependencies
 
